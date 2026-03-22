@@ -1,7 +1,7 @@
 import type { Signal } from '../../../alive-constitution/contracts/signal';
 import { firewallCheck } from '../../../alive-body/src/nervous-system/firewall';
 import { recordExecution } from '../../../alive-body/src/logging/execution-log';
-import { evaluateSTG } from '../stg/stop-thinking-gate';
+import { evaluateSTG, shouldThink } from '../stg/stop-thinking-gate';
 import { checkAdmissibility } from '../enforcement/admissibility-check';
 import { callMind } from '../wiring/mind-bridge';
 import { callBody } from '../wiring/body-bridge';
@@ -11,6 +11,10 @@ export function routeSignal(signal: Signal): string {
 
   if (evaluateSTG(screened) !== 'OPEN') {
     return 'Denied by STG';
+  }
+
+  if (!shouldThink(screened)) {
+    return 'Request blocked by STG.';
   }
 
   const decision = checkAdmissibility(callMind(screened));

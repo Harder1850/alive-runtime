@@ -13,3 +13,13 @@ export function evaluateSTG(signal: Signal): StgResult {
 
   return 'OPEN';
 }
+
+export function shouldThink(signal: Signal): boolean {
+  const text = signal.raw_content.toLowerCase();
+
+  if (text.includes('forbidden')) {
+    return false;
+  }
+
+  return true;
+}
