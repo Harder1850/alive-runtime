@@ -1,21 +1,15 @@
-/**
- * Stop Thinking Gate (STG)
- * Halts cognitive processing based on policy.
- * DOES NOT make cognitive decisions — enforces halting only.
- */
-export class StopThinkingGate {
-  private halted = false;
+import type { Signal } from '../../../alive-constitution/contracts/signal';
 
-  halt(reason: string): void {
-    this.halted = true;
-    console.log(`[STG] Halt: ${reason}`);
+export type StgResult = 'OPEN' | 'DENY';
+
+export function evaluateSTG(signal: Signal): StgResult {
+  if (signal.firewall_status !== 'passed') {
+    return 'DENY';
   }
 
-  resume(): void {
-    this.halted = false;
+  if (!signal.raw_content.trim()) {
+    return 'DENY';
   }
 
-  isHalted(): boolean {
-    return this.halted;
-  }
+  return 'OPEN';
 }

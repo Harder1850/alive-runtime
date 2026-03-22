@@ -1,11 +1,7 @@
-/** Bridge between Runtime and Mind. */
-export class MindBridge {
-  sendSignal(_signal: unknown): void {
-    // TODO: implement
-  }
+import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Decision } from '../../../alive-constitution/contracts/decision';
+import { think } from '../../../alive-mind/src/spine/mind-loop';
 
-  receiveDecision(): unknown {
-    // TODO: implement
-    return null;
-  }
+export function callMind(signal: Signal): Decision {
+  return think(signal);
 }

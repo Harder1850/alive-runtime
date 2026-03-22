@@ -1,11 +1,6 @@
-/** Bridge between Runtime and Body. */
-export class BodyBridge {
-  dispatchAction(_action: unknown): void {
-    // TODO: implement
-  }
+import type { Action } from '../../../alive-constitution/contracts/action';
+import { executeAction } from '../../../alive-body/src/actuators/executor';
 
-  receiveSensorData(): unknown {
-    // TODO: implement
-    return null;
-  }
+export function callBody(action: Action): string {
+  return executeAction(action);
 }

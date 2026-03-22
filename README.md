@@ -1,6 +1,32 @@
 # ALIVE Runtime
 
-> **Constitution defines → Runtime governs → Mind thinks → Body acts → Interface displays**
+## Commitment
+
+This repository governs the behavior of ALIVE.
+
+It is responsible for:
+- enforcing constitutional law
+- gating cognition via the Stop-Thinking Gate (STG)
+- routing signals and actions
+- validating admissibility
+- controlling system flow and lifecycle
+
+Runtime decides:
+- when thinking is allowed
+- when actions are permitted
+- how signals move through the system
+
+It does not:
+- perform cognition
+- store long-term memory
+- execute actions directly
+- define law
+
+It enforces, but does not originate, authority.
+
+## Architecture Spine
+
+Constitution defines → Runtime governs → Mind thinks → Body acts → Interface displays
 
 ## Purpose
 Governance and orchestration layer. Controls flow, enforces law, and gates cognition and action.

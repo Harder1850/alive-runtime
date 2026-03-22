@@ -4,9 +4,7 @@
   "description": "Governance and orchestration layer of ALIVE. Controls routing, STG, scheduling, enforcement, and lifecycle.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "test": "echo \"No tests yet\"",
-    "start": "node dist/index.js"
+    "build": "tsc"
   },
   "license": "Apache-2.0",
   "devDependencies": {
