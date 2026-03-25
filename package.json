@@ -4,10 +4,13 @@
   "description": "Governance and orchestration layer of ALIVE. Controls routing, STG, scheduling, enforcement, and lifecycle.",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "test": "node --import tsx --test tests/red-team.test.ts",
+    "start": "node --import tsx src/main.ts"
   },
   "license": "Apache-2.0",
   "devDependencies": {
+    "tsx": "^4.19.2",
     "typescript": "^5.0.0"
   }
 }
