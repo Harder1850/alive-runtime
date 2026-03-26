@@ -1,3 +1,8 @@
+declare global {
+  // eslint-disable-next-line no-var
+  var __ALIVE_ENFORCEMENT_VERIFIED__: boolean | undefined;
+}
+
 /**
  * System startup sequence.
  * Must be called and complete successfully before any signal routing.

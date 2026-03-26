@@ -1,5 +1,10 @@
-export { routeSignal } from "./router/signal-router";
-export { evaluateSTG, shouldThink } from "./stg/stop-thinking-gate";
+export { routeSignal } from './router/signal-router';
+export { evaluateSTG, shouldThink } from './stg/stop-thinking-gate';
+
+declare global {
+  // eslint-disable-next-line no-var
+  var __ALIVE_ENFORCEMENT_VERIFIED__: boolean | undefined;
+}
 
 /**
  * Assertion function to verify enforcement has been initialized.

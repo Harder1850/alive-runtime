@@ -13,13 +13,12 @@ export class PriorityQueue<T> {
     const result = this.items.shift();
     if (!result) return undefined;
 
-    // PATCH 4: For signals, verify STG verification and binding before dispatch
+    // Verify STG verification before dispatch
     if (this.isSignal(result.item)) {
       const signal = result.item as unknown as Signal;
-      if (!signal.stg_verified || !signal.binding_complete) {
+      if (!signal.stg_verified) {
         throw new Error(
-          `PATCH 4 violation: Signal dispatched without proper STG binding. ` +
-          `stg_verified=${signal.stg_verified}, binding_complete=${signal.binding_complete}`
+          `Signal dispatched without STG verification. stg_verified=${signal.stg_verified}`,
         );
       }
     }

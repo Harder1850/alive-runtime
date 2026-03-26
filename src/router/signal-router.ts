@@ -29,9 +29,6 @@ export function routeSignal(signal: Signal): string {
     throw new Error('Internal error: Signal should be marked as STG-verified at this point');
   }
 
-  // PATCH 4: Mark binding as complete after successful STG verification
-  verified.binding_complete = true;
-
   const decision = checkAdmissibility(callMind(verified));
 
   if (decision.admissibility_status !== 'passed') {
