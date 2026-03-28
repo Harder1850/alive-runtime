@@ -133,7 +133,7 @@ export class FlagEmitter {
       source:      'runtime/resources/cpu',
       signal_id:   signal.id,
       priority:    3,
-      reason:      `CPU risk ${(cpuRisk * 100).toFixed(0)} % exceeds threshold 70 %`,
+      reason:      'CPU risk exceeds threshold 70 %',
       expires_at:  Date.now() + TTL_SHORT,
       support_ref: signal.id,
     });
@@ -150,7 +150,7 @@ export class FlagEmitter {
       source:      'runtime/resources/disk',
       signal_id:   signal.id,
       priority:    3,
-      reason:      `Disk risk ${(diskRisk * 100).toFixed(0)} % exceeds threshold 80 %`,
+      reason:      'Disk risk exceeds threshold 80 %',
       expires_at:  Date.now() + TTL_SHORT,
       support_ref: signal.id,
     });
