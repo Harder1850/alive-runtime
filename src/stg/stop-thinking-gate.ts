@@ -6,13 +6,23 @@
  *   DEFER  — buffer for next cycle (not urgent enough now)
  *   DENY   — discard (blocked by firewall, empty, or vetoed)
  *
- * v12 §9 Resource Allocation — Priority-Based Determinism:
- *   Priority 4 (CRITICAL) : Always OPEN
- *   Priority 3 (HIGH)     : OPEN if battery > 20%
- *   Priority 2 (MEDIUM)   : OPEN if battery > 50% AND system load < 70%
- *   Priority 0-1 (LOW)    : DEFER
+ * v16 §31.8 Three-Condition Decision Policy (Slice 1 weights):
  *
- * Keywords override the priority table — distress/query signals are always OPEN.
+ *   Pre-checks (before conditions):
+ *     • firewall_status === 'blocked' → DENY
+ *     • empty raw_content             → DENY
+ *     • distress/query keyword        → OPEN (force override)
+ *     • threat_flag === true          → OPEN (force override)
+ *
+ *   Condition 1 — Critical priority override:
+ *     triagePriority >= CRITICAL_THRESHOLD (4) → OPEN regardless of resources
+ *
+ *   Condition 2 — Resource gate (Slice 1 weights):
+ *     batteryPct > BATTERY_THRESHOLD (30) AND cpuRisk < CPU_RISK_THRESHOLD (0.7)
+ *     → OPEN
+ *
+ *   Condition 3 — Default:
+ *     → DEFER
  */
 
 import type { Signal } from '../../../alive-constitution/contracts/signal';
@@ -55,22 +65,38 @@ export function markSignalVerified(signal: Signal): Signal {
 // Main evaluation — with resource context
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// Slice 1 weights (v16 §31.8)
+// ---------------------------------------------------------------------------
+
+/** Minimum battery percentage required for the resource gate to pass. */
+const BATTERY_THRESHOLD = 30;
+/** Maximum cpu_risk (0.0–1.0) allowed for the resource gate to pass. */
+const CPU_RISK_THRESHOLD = 0.7;
+/** Priority level that bypasses all resource checks. */
+const CRITICAL_THRESHOLD = 4;
+
+// ---------------------------------------------------------------------------
+// STG context
+// ---------------------------------------------------------------------------
+
 export interface STGContext {
   triagePriority?: number;   // 0–4 from triage service
-  batteryPct?: number;       // 0–100 from ASM
-  systemLoadPct?: number;    // 0–100 CPU load estimate
+  batteryPct?: number;       // 0–100 from ASM (battery_status × 100)
+  cpuRisk?: number;          // 0.0–1.0 from ASM cpu_risk (v16 §31.6)
 }
 
 export function evaluateSTG(signal: Signal, ctx: STGContext = {}): StgResult {
-  const { triagePriority = 1, batteryPct = 100, systemLoadPct = 0 } = ctx;
+  const { triagePriority = 1, batteryPct = 100, cpuRisk = 0.0 } = ctx;
 
   acquireSTGLock(signal.id);
   try {
     console.log(
-      `[STG] priority=${triagePriority} battery=${batteryPct}% load=${systemLoadPct}% ` +
+      `[STG] priority=${triagePriority} battery=${batteryPct}% cpu_risk=${cpuRisk.toFixed(2)} ` +
       `signal="${String(signal.raw_content).slice(0, 50)}"`,
     );
 
+    // Pre-checks
     if (signal.firewall_status === 'blocked') return 'DENY';
     if (!String(signal.raw_content ?? '').trim()) return 'DENY';
 
@@ -82,18 +108,13 @@ export function evaluateSTG(signal: Signal, ctx: STGContext = {}): StgResult {
 
     if (signal.threat_flag) return 'OPEN';
 
-    // Priority-based determinism (v12 §9)
-    if (triagePriority >= 4) return 'OPEN';
+    // v16 §31.8 — Condition 1: critical priority override
+    if (triagePriority >= CRITICAL_THRESHOLD) return 'OPEN';
 
-    if (triagePriority === 3) {
-      return batteryPct > 20 ? 'OPEN' : 'DEFER';
-    }
+    // v16 §31.8 — Condition 2: resource gate (Slice 1 weights)
+    if (batteryPct > BATTERY_THRESHOLD && cpuRisk < CPU_RISK_THRESHOLD) return 'OPEN';
 
-    if (triagePriority === 2) {
-      return (batteryPct > 50 && systemLoadPct < 70) ? 'OPEN' : 'DEFER';
-    }
-
-    // Priority 0-1 → DEFER
+    // v16 §31.8 — Condition 3: default
     return 'DEFER';
 
   } finally {

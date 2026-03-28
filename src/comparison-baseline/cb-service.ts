@@ -10,6 +10,11 @@
  *
  * Dual-State Model: CB lives in alive-runtime (fast), ASM lives in
  * alive-mind (authoritative). CB detects change; ASM records truth.
+ *
+ * v16 §31.5–§31.6: deltaScore = currentVelocity − baselineVelocity (signed
+ * absolute velocity difference). Positive = acceleration, negative = slowdown.
+ * Downstream consumers (triage, STG) use deltaScore for weighted urgency
+ * calculations without re-deriving it from the two raw velocities.
  */
 
 import type { Signal } from '../../../alive-constitution/contracts/signal';
@@ -23,6 +28,12 @@ export interface CBResult {
   baselineVelocity: number;
   /** How many standard deviations above baseline (0 if not anomalous) */
   zScore: number;
+  /**
+   * v16 §31.5 — Signed velocity difference: currentVelocity − baselineVelocity.
+   * Positive = signal burst (acceleration), negative = slowdown.
+   * Used by downstream stages for weighted urgency without re-derivation.
+   */
+  deltaScore: number;
 }
 
 interface SourceWindow {
@@ -66,7 +77,7 @@ export function recordAndEvaluate(signal: Signal): CBResult {
 
   // Not enough data yet — no anomaly determination possible
   if (count < MIN_SAMPLES_FOR_BASELINE) {
-    return { isAnomaly: false, currentVelocity: 0, baselineVelocity: 0, zScore: 0 };
+    return { isAnomaly: false, currentVelocity: 0, baselineVelocity: 0, zScore: 0, deltaScore: 0 };
   }
 
   // Split the window into two halves: baseline = older half, current = newer half
@@ -83,21 +94,23 @@ export function recordAndEvaluate(signal: Signal): CBResult {
   if (baselineVelocity === 0) {
     // No prior baseline — new source, first burst; flag if >5 signals in new half
     const isAnomaly = currentCount > 5;
-    return { isAnomaly, currentVelocity, baselineVelocity: 0, zScore: isAnomaly ? 1 : 0 };
+    return { isAnomaly, currentVelocity, baselineVelocity: 0, zScore: isAnomaly ? 1 : 0, deltaScore: currentVelocity };
   }
 
   const zScore = currentVelocity / baselineVelocity;
   const isAnomaly = zScore >= ANOMALY_MULTIPLIER;
+  // v16 §31.5: signed velocity difference
+  const deltaScore = currentVelocity - baselineVelocity;
 
   if (isAnomaly) {
     console.log(
       `[CB] ANOMALY detected on source="${signal.source}": ` +
       `velocity=${currentVelocity.toFixed(1)}/min vs baseline=${baselineVelocity.toFixed(1)}/min ` +
-      `(${zScore.toFixed(1)}×)`,
+      `(${zScore.toFixed(1)}×, delta=${deltaScore.toFixed(1)})`,
     );
   }
 
-  return { isAnomaly, currentVelocity, baselineVelocity, zScore };
+  return { isAnomaly, currentVelocity, baselineVelocity, zScore, deltaScore };
 }
 
 /** Reset the CB for a specific source (for testing / restart). */
