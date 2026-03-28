@@ -48,7 +48,10 @@ import { checkAdmissibility }   from '../enforcement/admissibility-check';
 import { synthesizerLevel2 }    from '../../../alive-mind/src/cognition/deliberation/synthesizer';
 import { StateModel }           from '../../../alive-mind/src/spine/state-model';
 import { ltg }                  from '../../../alive-mind/src/learning/ltg/learning-transfer-gate';
-import type { Story }           from '../../../alive-mind/src/memory/derived-memory';
+import { episodeStore }         from '../../../alive-mind/src/memory/episode-store';
+import { semanticGraph }        from '../../../alive-mind/src/memory/semantic-graph';
+import { consolidator }         from '../../../alive-mind/src/memory/consolidator';
+import type { Episode, MemoryKey } from '../../../alive-constitution/contracts/memory';
 
 // ── Alive-constitution ────────────────────────────────────────────────────────
 import type { Signal }          from '../../../alive-constitution/contracts/signal';
@@ -68,6 +71,10 @@ import { deferQueue }           from '../stg/stop-thinking-gate';
 
 /** Per-source consecutive-DEFER counter (Slice 2 degradation detection). */
 const _deferCounts = new Map<string, number>();
+
+/** Slice 3 — cycle counter for consolidator scheduling (every 50 cycles). */
+let _slice3CycleCount = 0;
+const CONSOLIDATOR_INTERVAL = 50;
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -327,20 +334,47 @@ export async function runSlice1Cycle(): Promise<void> {
   console.log('│  ✓ EXIT CRITERION 8: executor executed action — log_system_alert written to alive-web/cpu-alert.log');
   emit({ type: 'execution.completed', signal_id: verifiedSignal.id, action_type: admittedDecision.selected_action.type, result: execResult });
 
-  // ── [9] LTG ────────────────────────────────────────────────────────────────
+  // ── [9] LTG + Episode Store (Slice 3) ─────────────────────────────────────
   console.log('├─ [9] LEARNING TRANSFER GATE (LTG) ─────────────────────────────────');
-  const story: Story = {
-    id:              `story-${verifiedSignal.id}`,
-    context:         `CPU cycle: ${reading.usage_percent.toFixed(2)}% utilization`,
-    trigger_pattern: 'cpu_telemetry',
-    action_plan:     { target_actuator: 'file_manager', command_payload: { action: 'cpu_alert_log' } },
-    outcome:         execResult,
-    mvi:             Math.round(cpu_risk * 100),
-    trust:           candidate.confidence,
+
+  // Build episode from this cycle's signal + outcome
+  const episodeKey: MemoryKey = `${verifiedSignal.kind}:${verifiedSignal.source}`;
+  const episode: Episode = {
+    id:           `ep-${verifiedSignal.id}`,
+    kind:         verifiedSignal.kind,
+    source:       verifiedSignal.source,
+    signal_id:    verifiedSignal.id,
+    outcome:      execResult,
+    confidence:   candidate.confidence,
+    mvi:          1.0,         // episode store will set/update the real value
+    created_at:   Date.now(),
+    last_accessed: Date.now(),
+    lifecycle:    'active',
+    trust_score:  candidate.confidence,
   };
-  const ltgResult = ltg.evaluate(story);
-  console.log(`│  LTG verdict=${ltgResult}  (Slice 1 stub — always DEFER)`);
-  console.log('│  ✓ EXIT CRITERION 9: LTG.evaluate() returned DEFER');
+
+  // Record in STM (adds new entry or updates existing key's MVI + metadata)
+  episodeStore.record(episode);
+
+  // Recall to get the stored episode with current (possibly bumped) MVI
+  const storedEpisode = episodeStore.recall(episodeKey) ?? episode;
+
+  console.log(
+    `│  episode: key=${episodeKey}` +
+    `  mvi=${storedEpisode.mvi.toFixed(3)}  lifecycle=${storedEpisode.lifecycle}`,
+  );
+
+  // Evaluate LTG against the stored episode
+  const ltgResult = ltg.evaluate(storedEpisode);
+  console.log(`│  LTG verdict=${ltgResult}`);
+  console.log('│  ✓ EXIT CRITERION 9: LTG.evaluate() called with Episode');
+
+  // If promoted, write to semantic graph (LTM)
+  if (ltgResult === 'PROMOTE') {
+    semanticGraph.promote(storedEpisode);
+    console.log(`│  [SLICE3] → semanticGraph nodes=${semanticGraph.size()}`);
+  }
+
   emit({ type: 'ltg.evaluated', signal_id: verifiedSignal.id, result: ltgResult });
 
   // ── [10] ASM cpu_risk update ────────────────────────────────────────────────
@@ -361,7 +395,8 @@ export async function runSlice1Cycle(): Promise<void> {
   console.log(`  synthesis:               ${candidate.synthesis_level}`);
   console.log(`  admissibility:           ${admittedDecision.admissibility_status}`);
   console.log(`  executor:                ${execResult.slice(0, 60)}`);
-  console.log(`  LTG:                     ${ltgResult}`);
+  console.log(`  LTG:                     ${ltgResult}  (episode mvi=${storedEpisode.mvi.toFixed(3)} lifecycle=${storedEpisode.lifecycle})`);
+  console.log(`  episodeStore:            size=${episodeStore.size()}  semanticGraph=${semanticGraph.size()} nodes`);
   console.log(`  events emitted:          ${events.length}`);
   console.log('');
   console.log(`  v16 §31.10 exit criteria satisfied: 1 2 3 4 5 6 7 8 9 10`);
@@ -392,6 +427,13 @@ function _endCycleSlice2(): void {
   if (active.length > 0) {
     const summary = active.map((f) => `${f.class}:P${f.priority}`).join(' ');
     console.log(`[SLICE2] Active flags: ${summary}  DeferQueue=${deferQueue.size()}`);
+  }
+
+  // Slice 3 — background consolidator (every CONSOLIDATOR_INTERVAL cycles)
+  _slice3CycleCount++;
+  if (_slice3CycleCount % CONSOLIDATOR_INTERVAL === 0) {
+    console.log(`[SLICE3] Cycle ${_slice3CycleCount}: triggering background consolidator`);
+    consolidator.run();
   }
 }
 

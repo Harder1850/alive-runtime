@@ -9,7 +9,8 @@
     "start": "node --import tsx src/main.ts",
     "start:bridge": "node --import tsx src/wiring/start-bridge.ts",
     "slice1": "node --import tsx src/wiring/slice1-cycle.ts",
-    "slice2": "node --import tsx src/wiring/slice2-demo.ts"
+    "slice2": "node --import tsx src/wiring/slice2-demo.ts",
+    "slice3": "node --import tsx src/wiring/slice3-demo.ts"
   },
   "license": "Apache-2.0",
   "devDependencies": {

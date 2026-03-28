@@ -2,15 +2,16 @@
  * Comparison Baseline (CB) — alive-runtime
  * alive-runtime/src/comparison-baseline/cb.ts
  *
- * CB detects deviation. ASM defines reality. Two distinct nodes — never merged.
- * CB never writes to ASM. Read-heavy, safe for parallel evaluation.
- * Queue mutation in controlled scheduler commit step only.
+ * Fast change detection. Owned by alive-runtime — NOT alive-body.
  *
- * v16 §5: CB owned by alive-runtime.
- * Slice 1: ring buffer (16 samples) per kind:source channel.
+ * CB detects deviation. ASM defines reality. These are two distinct nodes.
+ * CB never writes to ASM. ASM may calibrate CB indirectly through runtime
+ * feedback — never through a direct write.
+ *
+ * Slice 1: ring buffer (16 samples) per channel (kind:source).
  */
 
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../../alive-constitution/contracts/signal';
 
 function channelKey(signal: Signal): string {
   return `${signal.kind}:${signal.source}`;
@@ -81,7 +82,7 @@ export function compareBaseline(signal: Signal): CBResult {
   if (value !== null) {
     if (ch.count > 0) {
       delta  = Math.abs(value - ch.mean);
-      const stdDev        = getStdDev(ch);
+      const stdDev         = getStdDev(ch);
       const normalizedDelta = ch.mean > 0 ? delta / ch.mean : delta;
       deltaScore = Math.min(1.0, Math.tanh(normalizedDelta * 3));
       zScore     = stdDev > 0 ? delta / stdDev : 0;
@@ -93,20 +94,14 @@ export function compareBaseline(signal: Signal): CBResult {
     updateStats(ch, value);
   }
 
-  return {
-    channel: key, delta, deltaScore, zScore,
-    sampleCount: ch.count,
-    signal: { ...signal, novelty: deltaScore },
-  };
+  return { channel: key, delta, deltaScore, zScore, sampleCount: ch.count, signal: { ...signal, novelty: deltaScore } };
 }
 
 export function resetChannel(signal: Signal): void {
   channels.delete(channelKey(signal));
 }
 
-export function getChannelStats(
-  signal: Signal
-): { mean: number; stdDev: number; count: number } | null {
+export function getChannelStats(signal: Signal): { mean: number; stdDev: number; count: number } | null {
   const ch = channels.get(channelKey(signal));
   if (!ch) return null;
   return { mean: ch.mean, stdDev: getStdDev(ch), count: ch.count };
