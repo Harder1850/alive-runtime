@@ -19,7 +19,14 @@
  *
  * Run with:  npm run slice1
  *
- * Do not add capability beyond Slice 1.
+ * Slice 2 additions (v16 §25) — flag hooks wired in without changing any
+ * existing Slice 1 stage logic:
+ *   • After firewall (if blocked) → threat flag
+ *   • After CB (if zScore > 0.5)  → anomaly flag
+ *   • After STG DEFER (≥ 3×)      → degradation flag + deferQueue.push
+ *   • End of cycle                 → quorumAccumulator.tick, deferQueue.tick, flagStore.tick
+ *
+ * Do not add capability beyond Slice 2.
  * Do not modify any contracts.
  * Do not bypass STG or LTG.
  */
@@ -52,6 +59,15 @@ import type { ASMState }        from '../../../alive-mind/src/spine/state-model'
 
 // ── Shared types ──────────────────────────────────────────────────────────────
 import type { RuntimeEvent }    from '../../../alive-interface/studio/packages/shared-types/src/index';
+
+// ── Slice 2 flag system ───────────────────────────────────────────────────────
+import { flagStore }            from '../flags/flag-store';
+import { flagEmitter }          from '../flags/flag-emitter';
+import { quorumAccumulator }    from '../flags/quorum-accumulator';
+import { deferQueue }           from '../stg/stop-thinking-gate';
+
+/** Per-source consecutive-DEFER counter (Slice 2 degradation detection). */
+const _deferCounts = new Map<string, number>();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constants
@@ -193,6 +209,9 @@ export async function runSlice1Cycle(): Promise<void> {
   if (fwSignal.firewall_status === 'blocked') {
     console.log('│  ✗ Firewall BLOCKED — cycle halted');
     emit({ type: 'pipeline.terminated', signal_id: signalId, reason: 'firewall blocked', stage: 'firewall' });
+    // Slice 2: threat flag on firewall block
+    flagEmitter.onFirewallBlock(fwSignal);
+    flagStore.tick();
     return;
   }
   console.log('│  ✓ EXIT CRITERION 3: Firewall cleared signal');
@@ -205,6 +224,11 @@ export async function runSlice1Cycle(): Promise<void> {
   console.log(`│  zScore=${cbResult.zScore.toFixed(3)}`);
   console.log('│  ✓ EXIT CRITERION 4: CB.evaluate() returned deltaScore');
   emit({ type: 'cb.evaluated', signal_id: fwSignal.id, novelty: cbResult.zScore, recurrence: cbResult.currentVelocity });
+
+  // Slice 2: anomaly flag when CB z-score exceeds threshold
+  if (cbResult.zScore > 0.5) {
+    flagEmitter.onCBAnomaly(fwSignal, cbResult.zScore);
+  }
 
   // Triage — feeds STG context (priority level)
   const triage = triageSignal(fwSignal, cbResult);
@@ -238,8 +262,21 @@ export async function runSlice1Cycle(): Promise<void> {
     console.log('│  ✓ EXIT CRITERION 5: STG returned DEFER — signal buffered for next cycle');
     console.log('│  (criteria 6–10 require STG=OPEN; re-run when CPU load is below 70%)');
     emit({ type: 'pipeline.terminated', signal_id: signalId, reason: 'STG DEFER', stage: 'stg' });
+    // Slice 2: track consecutive deferrals per source; emit degradation flag at threshold
+    const src    = fwSignal.source;
+    const dcount = (_deferCounts.get(src) ?? 0) + 1;
+    _deferCounts.set(src, dcount);
+    if (dcount >= 3) {
+      flagEmitter.onRepeatedDeferral(fwSignal, dcount);
+    }
+    deferQueue.push(fwSignal, stgCtx.triagePriority);
+    // End-of-cycle tick on DEFER path
+    _endCycleSlice2();
     return;
   }
+
+  // Signal is OPEN — reset defer counter for this source
+  _deferCounts.delete(fwSignal.source);
 
   // STG OPEN — stamp signal as brain-approved
   const verifiedSignal = markSignalVerified(fwSignal);
@@ -329,6 +366,33 @@ export async function runSlice1Cycle(): Promise<void> {
   console.log('');
   console.log(`  v16 §31.10 exit criteria satisfied: 1 2 3 4 5 6 7 8 9 10`);
   console.log('');
+
+  // Slice 2: end-of-cycle maintenance
+  _endCycleSlice2();
+}
+
+// ── Slice 2: end-of-cycle maintenance ─────────────────────────────────────────
+
+function _endCycleSlice2(): void {
+  // Feed active weak flags to quorum
+  for (const flag of flagStore.getActive()) {
+    quorumAccumulator.add(flag);
+  }
+  // Quorum tick — may emit a consolidated flag
+  const qFlag = quorumAccumulator.tick();
+  if (qFlag) {
+    flagStore.emit(qFlag);
+  }
+  // STG defer queue tick (starvation + expiry)
+  deferQueue.tick();
+  // Flag store expiry
+  flagStore.tick();
+
+  const active = flagStore.getActive();
+  if (active.length > 0) {
+    const summary = active.map((f) => `${f.class}:P${f.priority}`).join(' ');
+    console.log(`[SLICE2] Active flags: ${summary}  DeferQueue=${deferQueue.size()}`);
+  }
 }
 
 // ── Entry point ───────────────────────────────────────────────────────────────
