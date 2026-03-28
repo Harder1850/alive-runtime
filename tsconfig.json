@@ -14,7 +14,8 @@
     "../alive-mind/src/**/*.ts",
     "../alive-body/src/**/*.ts",
     "../alive-constitution/contracts/**/*.ts",
-    "../alive-constitution/invariants/**/*.ts"
+    "../alive-constitution/invariants/**/*.ts",
+    "../alive-interface/studio/packages/shared-types/src/**/*.ts"
   ],
   "exclude": ["dist", "node_modules", "../**/node_modules", "../**/dist"]
 }

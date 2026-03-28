@@ -1,7 +1,7 @@
 /**
  * ALIVE Runtime — Autonomous Command Center v12
  *
- * Pipeline: Sense → CB → Triage → Reflex? → STG → Mind → Admissibility → Body → Experience
+ * Pipeline: Sense → CB → Triage → Executive → STG → Mind → Admissibility → Body → Experience
  * WebSocket: ws://localhost:7070  (alive-host-ui)
  *
  * Proactive heartbeats:
@@ -25,7 +25,9 @@ import type { EnvironmentSnapshot } from '../../alive-body/src/sensors/environme
 import { appendLogEntry } from '../../alive-body/src/tools/captains-log';
 import { recordAndEvaluate } from './comparison-baseline/cb-service';
 import { triageSignal } from './triage/triage-service';
+import { authorize } from './enforcement/executive';
 import { appendExperience } from '../../alive-mind/src/memory/experience-stream';
+import { runPipeline } from './wiring/pipeline';
 
 const ALIVE_WEB = join('C:', 'Users', 'mikeh', 'dev', 'ALIVE', 'alive-repos', 'alive-web');
 
@@ -63,22 +65,66 @@ function sense(): Signal {
 }
 
 // ---------------------------------------------------------------------------
-// Inline STG (fast path for tick loop — no lock overhead needed here)
+// Inline STG — Priority-Based Determinism (v12 §9 Resource Allocation)
+//
+// Priority 4 (CRITICAL) : Always OPEN
+// Priority 3 (HIGH)     : OPEN if battery > 20%
+// Priority 2 (MEDIUM)   : OPEN if battery > 50% AND system load < 70%
+// Priority 0-1 (LOW)    : DEFER to next heartbeat cycle
 // ---------------------------------------------------------------------------
 
 const FORCE_OPEN_KEYWORDS = ['help', 'broke', 'broken', 'emergency', 'how', '?', 'survival', 'threat', 'warning'];
 
-function evaluateSTG(signal: Signal): 'OPEN' | 'DEFER' | 'DENY' {
-  console.log(`[STG] Deciding: Reflex vs Brain... (signal="${String(signal.raw_content).slice(0, 60)}")`);
-  if (!String(signal.raw_content ?? '').trim()) return 'DENY';
+function evaluateSTG(
+  signal: Signal,
+  triagePriority: number = 1,
+  batteryPct: number = 100,
+  systemLoadPct: number = 0,
+): 'OPEN' | 'DEFER' | 'DENY' {
+  console.log(`[STG] Deciding: priority=${triagePriority} battery=${batteryPct}% load=${systemLoadPct}% signal="${String(signal.raw_content).slice(0, 50)}"`);
+
+  // Hard DENY: firewall rejected or empty content
   if (signal.firewall_status !== 'cleared') return 'DENY';
+  if (!String(signal.raw_content ?? '').trim()) return 'DENY';
+
   const lower = String(signal.raw_content).toLowerCase();
+
+  // Force-OPEN overrides priority table for distress/query keywords
   if (FORCE_OPEN_KEYWORDS.some((kw) => lower.includes(kw))) {
-    console.log('[STG] Force-OPEN: keyword match → routing to Brain');
+    console.log('[STG] Force-OPEN: distress/query keyword');
     return 'OPEN';
   }
-  // 70% lazy for routine telemetry — only DEFER (buffer), never lose entirely
-  return Math.random() < 0.7 ? 'DEFER' : 'OPEN';
+
+  // Priority-based deterministic resource allocation (v12 §9)
+  if (triagePriority >= 4) {
+    // CRITICAL — always open, no resource check
+    console.log('[STG] OPEN: priority=CRITICAL');
+    return 'OPEN';
+  }
+
+  if (triagePriority === 3) {
+    // HIGH — open if battery above critical threshold (20%)
+    if (batteryPct > 20) {
+      console.log('[STG] OPEN: priority=HIGH, battery sufficient');
+      return 'OPEN';
+    }
+    console.log('[STG] DEFER: priority=HIGH but battery critically low');
+    return 'DEFER';
+  }
+
+  if (triagePriority === 2) {
+    // MEDIUM — open if battery healthy AND system not overloaded
+    if (batteryPct > 50 && systemLoadPct < 70) {
+      console.log('[STG] OPEN: priority=MEDIUM, resources sufficient');
+      return 'OPEN';
+    }
+    console.log('[STG] DEFER: priority=MEDIUM, resource constraints');
+    return 'DEFER';
+  }
+
+  // LOW (0-1) — always DEFER, not worth brain cycles
+  console.log('[STG] DEFER: priority=LOW');
+  return 'DEFER';
 }
 
 // ---------------------------------------------------------------------------
@@ -207,7 +253,7 @@ function writeStatusJson(env: EnvironmentSnapshot): void {
 
 // ---------------------------------------------------------------------------
 // Tick — 1-second background telemetry loop
-// v12 Pipeline: Sense → CB → Triage → Reflex → STG → Mind → Body → Experience
+// v12 Pipeline: Sense → CB → Triage → Executive → STG → Mind → Body → Experience
 // ---------------------------------------------------------------------------
 
 async function tick(): Promise<void> {
@@ -221,18 +267,7 @@ async function tick(): Promise<void> {
   // Step 2: Triage — classify signal and raise flags
   const triage = triageSignal(signal, cbResult);
 
-  // Step 3: Reflex check — bypass brain for critical patterns
-  if (triage.recommendedRoute === 'reflex') {
-    const { reflexAction, bypassed } = routeWithPriority([signal]);
-    if (bypassed && reflexAction) {
-      const output = callBody(reflexAction);
-      console.log(`${prefix} | ⚡ REFLEX | "${String(signal.raw_content).slice(0, 50)}" → "${output.slice(0, 60)}"`);
-      appendExperience(signal, reflexAction, { stg_result: 'REFLEX', was_reflex: true, flags_raised: triage.flags.length });
-      return;
-    }
-  }
-
-  // Also check reflex router directly (pattern-based bypass)
+  // Step 3: Reflex — bypass brain for critical patterns (before executive overhead)
   const { reflexAction, bypassed } = routeWithPriority([signal]);
   if (bypassed && reflexAction) {
     const output = callBody(reflexAction);
@@ -241,26 +276,34 @@ async function tick(): Promise<void> {
     return;
   }
 
-  // Step 4: STG — decide if worth thinking about
-  const stgResult = evaluateSTG(signal);
-
-  if (stgResult === 'DENY') {
-    // Routine noise — discard silently (no log spam)
+  // Step 4: Executive — constitutional authorization gate
+  const exec = authorize(signal, triage);
+  if (exec.verdict === 'VETOED') {
+    console.log(`${prefix} | 🛑 VETOED [${exec.constitution_ref}] ${exec.reason}`);
     return;
   }
+  if (exec.verdict === 'FLAGGED') {
+    console.log(`${prefix} | ⚠️  FLAGGED [${exec.constitution_ref}] ${exec.reason} — proceeding with caution`);
+  }
+
+  // Step 5: STG — priority-based resource allocation (v12 §9)
+  const batteryPct = stateModel.get().battery_status * 100;
+  const stgResult = evaluateSTG(signal, triage.highestPriority, batteryPct);
+
+  if (stgResult === 'DENY') return;
 
   if (stgResult === 'DEFER') {
     console.log(`${prefix} | 💤 DEFER`);
     return;
   }
 
-  // Step 5: Mind — route to appropriate reasoning layer
+  // Step 6: Mind — route to appropriate reasoning layer
   console.log(`${prefix} | 🧠 STG=OPEN | "${String(signal.raw_content).slice(0, 50)}"`);
 
   let action: Action;
 
-  // High-priority triage signals get full reasoning engine (LLM-capable)
-  // Routine signals use the fast stub to avoid burning API tokens on noise
+  // Priority ≥ 3 → full reasoning engine (LLM-capable)
+  // Priority < 3  → fast stub (avoid burning API tokens on routine noise)
   if (triage.highestPriority >= 3) {
     action = await evaluateNovelSignal(signal, stateModel.get());
   } else {
@@ -277,11 +320,11 @@ async function tick(): Promise<void> {
     return;
   }
 
-  // Step 6: Body — execute
+  // Step 7: Body — execute
   const output = callBody(action);
   console.log(`${prefix} | ✅ ACT → "${output.slice(0, 80)}"`);
 
-  // Step 7: Experience Stream — record what happened
+  // Step 8: Experience Stream — record what happened
   appendExperience(signal, action, {
     stg_result: 'OPEN',
     was_reflex: false,
@@ -309,7 +352,7 @@ async function handleObservation(wss: WebSocketServer, raw: string): Promise<voi
     perceived_at: Date.now(),
   };
 
-  // CB + Triage for WebSocket signals too
+  // CB → Triage → Executive → Mind (WebSocket signals always get full reasoning)
   const cbResult = recordAndEvaluate(signal);
   const triage = triageSignal(signal, cbResult);
 
@@ -320,6 +363,13 @@ async function handleObservation(wss: WebSocketServer, raw: string): Promise<voi
     const text = reflexAction.type === 'display_text' ? reflexAction.payload : '[reflex]';
     broadcast(wss, { type: 'render', canvas: 'text', content: { text } });
     appendExperience(signal, reflexAction, { stg_result: 'REFLEX', was_reflex: true, flags_raised: triage.flags.length });
+    return;
+  }
+
+  // Executive gate
+  const exec = authorize(signal, triage);
+  if (exec.verdict === 'VETOED') {
+    broadcast(wss, { type: 'render', canvas: 'text', content: { text: `🛑 VETOED [${exec.constitution_ref}]: ${exec.reason}` } });
     return;
   }
 
@@ -378,5 +428,8 @@ function runLoop(): void {
   captainsLogHeartbeat().catch(console.error);
   setInterval(() => captainsLogHeartbeat().catch(console.error), LOG_INTERVAL_MS);
 }
+
+// Pipeline smoke test — runs before the event loop starts
+runPipeline('hello');
 
 runLoop();

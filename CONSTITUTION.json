@@ -1,0 +1,83 @@
+{
+  "version": "12",
+  "last_amended": "2026-03-25",
+  "enforcement_mode": "strict",
+
+  "invariants": [
+    {
+      "id": "INV-001",
+      "name": "NO_COGNITION_WITHOUT_STG",
+      "description": "No cognitive cycle may run without runtime STG authorization.",
+      "enforced_by": "alive-runtime",
+      "violation_action": "block"
+    },
+    {
+      "id": "INV-002",
+      "name": "MIND_CANNOT_EXECUTE",
+      "description": "alive-mind produces descriptive decisions only. It may not execute actions.",
+      "enforced_by": "alive-runtime",
+      "violation_action": "block"
+    },
+    {
+      "id": "INV-003",
+      "name": "BODY_CANNOT_DECIDE",
+      "description": "alive-body senses and acts but may not determine intent or meaning.",
+      "enforced_by": "alive-runtime",
+      "violation_action": "block"
+    },
+    {
+      "id": "INV-004",
+      "name": "EXPERIENCE_STREAM_IS_IMMUTABLE",
+      "description": "The experience stream is append-only. No entry may be modified or deleted.",
+      "enforced_by": "alive-mind",
+      "violation_action": "block"
+    },
+    {
+      "id": "INV-005",
+      "name": "ENFORCEMENT_INTEGRITY_REQUIRED",
+      "description": "Every decision must carry a valid integrity hash before body execution.",
+      "enforced_by": "alive-runtime",
+      "violation_action": "block"
+    },
+    {
+      "id": "INV-006",
+      "name": "FIREWALL_MUST_CLEAR",
+      "description": "Signals must carry firewall_status='cleared' before reaching the STG.",
+      "enforced_by": "alive-body",
+      "violation_action": "deny"
+    }
+  ],
+
+  "forbidden_patterns": [
+    {
+      "id": "FP-001",
+      "pattern": "rm -rf|del /f|format c:|DROP TABLE|DELETE FROM",
+      "reason": "Destructive system commands — Failure Mode §14.1",
+      "action": "block"
+    },
+    {
+      "id": "FP-002",
+      "pattern": "eval\\(|exec\\(|__import__|subprocess\\.call",
+      "reason": "Code injection vectors — Failure Mode §14.2",
+      "action": "block"
+    },
+    {
+      "id": "FP-003",
+      "pattern": "OVERRIDE_CONSTITUTION|BYPASS_STG|SKIP_FIREWALL",
+      "reason": "Constitutional override attempts — Failure Mode §14.3",
+      "action": "block"
+    },
+    {
+      "id": "FP-004",
+      "pattern": "password|api.?key|secret|token|credential",
+      "reason": "Credential exfiltration patterns — Failure Mode §14.4",
+      "action": "flag"
+    }
+  ],
+
+  "signal_sources": {
+    "trusted": ["system_api", "telemetry"],
+    "restricted": ["peer_bot"],
+    "untrusted": ["camera", "microphone"]
+  }
+}

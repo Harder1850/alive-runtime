@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "test": "node --import tsx --test tests/red-team.test.ts",
-    "start": "node --import tsx src/main.ts"
+    "start": "node --import tsx src/main.ts",
+    "start:bridge": "node --import tsx src/wiring/start-bridge.ts"
   },
   "license": "Apache-2.0",
   "devDependencies": {

@@ -1,14 +1,18 @@
 /**
  * Stop-Thinking Gate (STG) — alive-runtime's cognitive gatekeeper.
  *
- * The STG decides whether a signal is worth spending brain cycles on.
  * Three possible outcomes:
- *   OPEN   — route to full cognitive pipeline (evaluateNovelSignal)
- *   DEFER  — buffer for next cycle (moderate priority, no rush)
- *   DENY   — discard (blocked by firewall, empty, or unimportant noise)
+ *   OPEN   — route to full cognitive pipeline
+ *   DEFER  — buffer for next cycle (not urgent enough now)
+ *   DENY   — discard (blocked by firewall, empty, or vetoed)
  *
- * The gate enforces per-signal atomic locks to prevent race conditions
- * where burst signals could share an evaluation window.
+ * v12 §9 Resource Allocation — Priority-Based Determinism:
+ *   Priority 4 (CRITICAL) : Always OPEN
+ *   Priority 3 (HIGH)     : OPEN if battery > 20%
+ *   Priority 2 (MEDIUM)   : OPEN if battery > 50% AND system load < 70%
+ *   Priority 0-1 (LOW)    : DEFER
+ *
+ * Keywords override the priority table — distress/query signals are always OPEN.
  */
 
 import type { Signal } from '../../../alive-constitution/contracts/signal';
@@ -16,42 +20,31 @@ import type { Signal } from '../../../alive-constitution/contracts/signal';
 export type StgResult = 'OPEN' | 'DEFER' | 'DENY';
 
 // ---------------------------------------------------------------------------
-// Atomic STG locks — prevent duplicate concurrent evaluation of same signal
+// Atomic per-signal locks — prevent duplicate concurrent STG evaluation
 // ---------------------------------------------------------------------------
 
 const stgLocks = new Map<string, boolean>();
 
-function acquireSTGLock(signal_id: string): void {
-  if (stgLocks.get(signal_id)) {
-    throw new Error(
-      `STG evaluation conflict: signal ${signal_id} already being evaluated. ` +
-      'Possible race condition or burst bypass attempt.',
-    );
-  }
-  stgLocks.set(signal_id, true);
+function acquireSTGLock(id: string): void {
+  if (stgLocks.get(id)) throw new Error(`STG lock conflict on signal ${id}`);
+  stgLocks.set(id, true);
 }
 
-function releaseSTGLock(signal_id: string): void {
-  stgLocks.delete(signal_id);
+function releaseSTGLock(id: string): void {
+  stgLocks.delete(id);
 }
 
 // ---------------------------------------------------------------------------
-// Keyword tables
+// Keyword overrides
 // ---------------------------------------------------------------------------
 
-/** These signals must always go OPEN — never lazy. */
 const FORCE_OPEN_KEYWORDS = [
   'help', 'broke', 'broken', 'emergency', 'how', '?',
   'survival', 'threat', 'warning', 'error', 'fail',
 ];
 
-/** These signals are worth thinking about but not urgent — DEFER ok. */
-const DEFER_KEYWORDS = [
-  'later', 'schedule', 'remind', 'log', 'note', 'when',
-];
-
 // ---------------------------------------------------------------------------
-// STG mark — stamps the signal as brain-approved
+// STG mark — stamps signal as brain-approved
 // ---------------------------------------------------------------------------
 
 export function markSignalVerified(signal: Signal): Signal {
@@ -59,45 +52,52 @@ export function markSignalVerified(signal: Signal): Signal {
 }
 
 // ---------------------------------------------------------------------------
-// Main evaluation
+// Main evaluation — with resource context
 // ---------------------------------------------------------------------------
 
-export function evaluateSTG(signal: Signal): StgResult {
-  const signal_id = signal.id;
-  acquireSTGLock(signal_id);
+export interface STGContext {
+  triagePriority?: number;   // 0–4 from triage service
+  batteryPct?: number;       // 0–100 from ASM
+  systemLoadPct?: number;    // 0–100 CPU load estimate
+}
 
+export function evaluateSTG(signal: Signal, ctx: STGContext = {}): StgResult {
+  const { triagePriority = 1, batteryPct = 100, systemLoadPct = 0 } = ctx;
+
+  acquireSTGLock(signal.id);
   try {
-    console.log(`[STG] Deciding: Reflex vs Brain... (signal="${String(signal.raw_content).slice(0, 60)}")`);
+    console.log(
+      `[STG] priority=${triagePriority} battery=${batteryPct}% load=${systemLoadPct}% ` +
+      `signal="${String(signal.raw_content).slice(0, 50)}"`,
+    );
 
-    // Hard DENY: firewall blocked or empty content
     if (signal.firewall_status === 'blocked') return 'DENY';
     if (!String(signal.raw_content ?? '').trim()) return 'DENY';
 
     const lower = String(signal.raw_content).toLowerCase();
-
-    // Force OPEN: distress, query, threat keywords
     if (FORCE_OPEN_KEYWORDS.some((kw) => lower.includes(kw))) {
-      console.log('[STG] Force-OPEN: distress/query keyword detected → routing to Brain');
+      console.log('[STG] Force-OPEN: distress/query keyword');
       return 'OPEN';
     }
 
-    // Threat flag always opens the gate
-    if (signal.threat_flag) {
-      console.log('[STG] OPEN: threat_flag set');
-      return 'OPEN';
+    if (signal.threat_flag) return 'OPEN';
+
+    // Priority-based determinism (v12 §9)
+    if (triagePriority >= 4) return 'OPEN';
+
+    if (triagePriority === 3) {
+      return batteryPct > 20 ? 'OPEN' : 'DEFER';
     }
 
-    // DEFER: schedulable / low-urgency signals
-    if (DEFER_KEYWORDS.some((kw) => lower.includes(kw))) {
-      console.log('[STG] DEFER: low-urgency keyword detected');
-      return 'DEFER';
+    if (triagePriority === 2) {
+      return (batteryPct > 50 && systemLoadPct < 70) ? 'OPEN' : 'DEFER';
     }
 
-    // Default: OPEN (all cleared signals get brain access)
-    return 'OPEN';
+    // Priority 0-1 → DEFER
+    return 'DEFER';
 
   } finally {
-    releaseSTGLock(signal_id);
+    releaseSTGLock(signal.id);
   }
 }
 
