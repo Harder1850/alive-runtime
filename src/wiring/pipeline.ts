@@ -19,7 +19,7 @@ import { evaluateSTG, markSignalVerified } from '../stg/stop-thinking-gate';
 import { think } from '../../../alive-mind/src/spine/mind-loop';
 import { authorize } from '../enforcement/executive';
 import { executeAction } from '../../../alive-body/src/actuators/executor';
-import { recordExecution } from '../../../alive-body/src/logging/execution-log';
+import { logActionDispatched, logActionOutcome, logCycleComplete } from '../../../alive-body/src/logging/execution-log';
 import { recordAndEvaluate } from '../comparison-baseline/cb-service';
 import { triageSignal } from '../triage/triage-service';
 import type { RuntimeEvent } from '../../../alive-interface/studio/packages/shared-types/src/index';
@@ -124,13 +124,13 @@ export async function runPipeline(raw: string, onEvent?: (event: RuntimeEvent) =
   });
 
   // ── Stage 8: Log ──────────────────────────────────────────────────────────
-  // Record with full signal+decision context (executor records with empty IDs internally)
-  recordExecution({
-    timestamp: Date.now(),
-    signalId: verifiedSignal.id,
-    decisionId: decision.id,
-    actionType: decision.selected_action.type,
+  logActionDispatched(verifiedSignal.id, decision.id, decision.selected_action.type);
+  logActionOutcome(verifiedSignal.id, decision.id, true, result);
+  logCycleComplete(verifiedSignal.id, {
+    stage: 'pipeline',
+    action_type: decision.selected_action.type,
     result,
+    executive_verdict: exec.verdict,
   });
   console.log(`[PIPELINE] 8. LOGGED    signalId=${verifiedSignal.id} decisionId=${decision.id}`);
   console.log('[PIPELINE] ═══════════════════════════  END  ═══════════════════════════\n');

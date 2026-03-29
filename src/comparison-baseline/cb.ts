@@ -11,7 +11,7 @@
  * Slice 1: ring buffer (16 samples) per channel (kind:source).
  */
 
-import type { Signal } from '../../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts/signal';
 
 function channelKey(signal: Signal): string {
   return `${signal.kind}:${signal.source}`;

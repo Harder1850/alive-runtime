@@ -39,8 +39,13 @@ function makeSignal(overrides: Partial<Signal> = {}): Signal {
   return {
     id: `sig-${Math.random().toString(36).slice(2)}`,
     source: 'system_api' as SignalSource,
+    kind: 'user_input',
     raw_content: 'test payload',
     timestamp: Date.now(),
+    urgency: 0.5,
+    novelty: 0,
+    confidence: 1,
+    quality_score: 1,
     threat_flag: false,
     firewall_status: 'cleared' as FirewallStatus,
     ...overrides,

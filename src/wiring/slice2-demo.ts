@@ -26,7 +26,7 @@ import { evaluateSTG,
 import { think }               from '../../../alive-mind/src/spine/mind-loop';
 import { authorize }           from '../enforcement/executive';
 import { executeAction }       from '../../../alive-body/src/actuators/executor';
-import { recordExecution }     from '../../../alive-body/src/logging/execution-log';
+import { logActionDispatched, logActionOutcome, logCycleComplete } from '../../../alive-body/src/logging/execution-log';
 import { recordAndEvaluate }   from '../comparison-baseline/cb-service';
 import { triageSignal }        from '../triage/triage-service';
 import { flagStore }           from '../flags/flag-store';
@@ -130,12 +130,13 @@ async function runDemoCycle(raw: string, opts: DemoOptions): Promise<void> {
   const result = executeAction(decision.selected_action);
   console.log(`│   ✓ EXECUTED  action=${decision.selected_action.type}  result="${result.slice(0, 60)}"`);
 
-  recordExecution({
-    timestamp:  Date.now(),
-    signalId:   verifiedSignal.id,
-    decisionId: decision.id,
-    actionType: decision.selected_action.type,
+  logActionDispatched(verifiedSignal.id, decision.id, decision.selected_action.type);
+  logActionOutcome(verifiedSignal.id, decision.id, true, result);
+  logCycleComplete(verifiedSignal.id, {
+    stage: 'slice2-demo',
+    action_type: decision.selected_action.type,
     result,
+    label,
   });
 
   endCycle();

@@ -25,15 +25,16 @@
 import * as fs   from 'fs';
 import * as path from 'path';
 
-import type { Signal }       from '../../../alive-constitution/contracts/signal';
-import type { Action }       from '../../../alive-constitution/contracts/action';
-import type { RuntimeState } from '../../../alive-constitution/contracts/state';
+import type { Signal }       from '../../alive-constitution/contracts/signal';
+import type { Action }       from '../../alive-constitution/contracts/action';
+import type { RuntimeState } from '../../alive-constitution/contracts/state';
 
 import { compareBaseline }      from './comparison-baseline/cb';
 import { evaluateSTG }          from './stg/stop-thinking-gate';
 import type { StgResult }       from './stg/stop-thinking-gate';
 import { synthesize }           from '../../alive-mind/src/decisions/synthesize';
 import type { ActionCandidate } from '../../alive-mind/src/decisions/synthesize';
+import { getAccuracy, recordOutcome, type OutcomeType } from './calibration/calibration-engine';
 
 import {
   logSignalReceived,
@@ -72,12 +73,13 @@ function checkAdmissibility(candidate: ActionCandidate): AdmissibilityResult {
   if (candidate.risk > 0.9)        return { status: 'blocked', reason: 'Risk exceeds maximum' };
   if (candidate.confidence < 0.1)  return { status: 'blocked', reason: 'Confidence below minimum' };
   if (candidate.action.type === 'write_file') {
-    if (candidate.action.filename.includes('..'))
+    const filename = candidate.action.filename;
+    if (filename.includes('..'))
       return { status: 'blocked', reason: 'Path traversal forbidden' };
-    if (candidate.action.filename.startsWith('/'))
+    if (filename.startsWith('/'))
       return { status: 'blocked', reason: 'Absolute paths forbidden' };
     const PROTECTED = ['system-invariants', 'alive-constitution', 'alive-runtime'];
-    if (PROTECTED.some(p => candidate.action.filename.includes(p)))
+    if (PROTECTED.some(p => filename.includes(p)))
       return { status: 'blocked', reason: 'Write to protected file forbidden' };
   }
   return { status: 'pass', reason: 'All checks passed' };
@@ -167,7 +169,8 @@ export async function runCycle(signal: Signal): Promise<CycleResult> {
   const verifiedSignal: Signal = { ...signalWithNovelty, stg_verified: true };
   let candidate: ActionCandidate;
   try {
-    candidate = synthesize(verifiedSignal).candidate;
+    const predictionAccuracy = getAccuracy(verifiedSignal);
+    candidate = synthesize(verifiedSignal, predictionAccuracy).candidate;
     console.log(`[COGNITION] level=${candidate.level} reason="${candidate.reason.slice(0, 80)}" confidence=${candidate.confidence.toFixed(2)}`);
   } catch (err) {
     console.error(`[COGNITION] Synthesis error: ${err}`);
@@ -185,6 +188,17 @@ export async function runCycle(signal: Signal): Promise<CycleResult> {
   logActionDispatched(signal.id, candidate.id, candidate.action.type, { level: candidate.level, confidence: candidate.confidence, risk: candidate.risk });
   const outcome = executeAction(candidate.action);
   logActionOutcome(signal.id, candidate.id, outcome.success, outcome.detail);
+
+  // Record outcome to calibration engine for feedback loop
+  const outcomeType: OutcomeType = outcome.success ? 'positive' : 'negative';
+  recordOutcome({
+    signal:            verifiedSignal,
+    action_type:       candidate.action.type,
+    synthesizer_level: candidate.level,
+    scored_confidence: candidate.confidence,
+    outcome:           outcomeType,
+    observed_at:       Date.now(),
+  });
 
   // Step 7: LTG
   const ltgVerdict = evaluateLTG(candidate, verifiedSignal);

@@ -1,6 +1,6 @@
 import type { Signal } from '../../../alive-constitution/contracts/signal';
 import { firewallCheck } from '../../../alive-body/src/nervous-system/firewall';
-import { recordExecution } from '../../../alive-body/src/logging/execution-log';
+import { logActionDispatched, logActionOutcome } from '../../../alive-body/src/logging/execution-log';
 import { evaluateSTG, shouldThink, markSignalVerified } from '../stg/stop-thinking-gate';
 import { checkAdmissibility } from '../enforcement/admissibility-check';
 import { callMind } from '../wiring/mind-bridge';
@@ -36,14 +36,8 @@ export function routeSignal(signal: Signal): string {
   }
 
   const result = callBody(decision.selected_action);
-
-  recordExecution({
-    timestamp: Date.now(),
-    signalId: verified.id,
-    decisionId: decision.id,
-    actionType: decision.selected_action.type,
-    result,
-  });
+  logActionDispatched(verified.id, decision.id, decision.selected_action.type);
+  logActionOutcome(verified.id, decision.id, true, result);
 
   return result;
 }

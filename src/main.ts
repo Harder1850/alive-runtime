@@ -13,7 +13,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import type { Signal } from '../../alive-constitution/contracts/signal';
+import { makeSignal, type Signal } from '../../alive-constitution/contracts/signal';
 import type { Action } from '../../alive-constitution/contracts/action';
 import { routeWithPriority } from '../enforcement/reflex-router';
 import { callMind } from './wiring/mind-bridge';
@@ -51,17 +51,21 @@ const MOCK_PAYLOADS = [
 function sense(): Signal {
   tickCount++;
   const isThreat = tickCount % 5 === 0;
-  return {
+  return makeSignal({
     id: crypto.randomUUID(),
     source: 'telemetry',
+    kind: 'process_health',
     raw_content: isThreat
       ? 'INTRUDER ALERT — perimeter breach detected'
       : MOCK_PAYLOADS[(tickCount - 1) % MOCK_PAYLOADS.length],
     timestamp: Date.now(),
+    urgency: isThreat ? 0.95 : 0.35,
+    confidence: 0.9,
+    quality_score: 0.9,
     threat_flag: isThreat,
     firewall_status: 'cleared',
     perceived_at: Date.now(),
-  };
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -145,15 +149,19 @@ function checkAdmissibility(action: Action): boolean {
 
 async function invokeTeacherAutonomously(raw_content: string, label: string): Promise<Action | null> {
   console.log(`[ALIVE] ⚡ AUTONOMOUS TRIGGER: ${label}`);
-  const signal: Signal = {
+  const signal: Signal = makeSignal({
     id: crypto.randomUUID(),
     source: 'system_api',
+    kind: 'process_error',
     raw_content,
     timestamp: Date.now(),
+    urgency: 0.95,
+    confidence: 0.95,
+    quality_score: 0.95,
     threat_flag: true,
     firewall_status: 'cleared',
     perceived_at: Date.now(),
-  };
+  });
   try {
     const action = await evaluateNovelSignal(signal, stateModel.get());
     if (checkAdmissibility(action)) {
@@ -342,15 +350,19 @@ function broadcast(wss: WebSocketServer, message: unknown): void {
 }
 
 async function handleObservation(wss: WebSocketServer, raw: string): Promise<void> {
-  const signal: Signal = {
+  const signal: Signal = makeSignal({
     id: crypto.randomUUID(),
     source: 'system_api',
+    kind: 'user_input',
     raw_content: raw,
     timestamp: Date.now(),
+    urgency: 0.5,
+    confidence: 0.95,
+    quality_score: 0.95,
     threat_flag: false,
     firewall_status: 'cleared',
     perceived_at: Date.now(),
-  };
+  });
 
   // CB → Triage → Executive → Mind (WebSocket signals always get full reasoning)
   const cbResult = recordAndEvaluate(signal);
