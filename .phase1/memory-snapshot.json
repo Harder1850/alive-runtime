@@ -1,0 +1,428 @@
+{
+  "working": [
+    {
+      "id": "outcome:c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "kind": "outcome",
+      "value": "success: Signal from filesystem/file_change_event: fs changed: C:/Users/mikeh/dev/ALIVE/alive-repos/alive-runtime/src/main.ts | candidate=display_text | deep=false",
+      "priority": 0.85,
+      "expiresAt": 1774931152763
+    },
+    {
+      "id": "outcome:520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "kind": "outcome",
+      "value": "success: Signal from telemetry/process_health: battery 100% | candidate=display_text | deep=false",
+      "priority": 0.85,
+      "expiresAt": 1774931152766
+    },
+    {
+      "id": "outcome:bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "kind": "outcome",
+      "value": "success: Signal from system_api/user_input: Please summarize what changed and suggest next safe action | candidate=display_text | deep=true",
+      "priority": 0.85,
+      "expiresAt": 1774931152768
+    },
+    {
+      "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "kind": "event",
+      "value": "Please summarize what changed and suggest next safe action",
+      "priority": 0.8,
+      "expiresAt": 1774930852760
+    },
+    {
+      "id": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "kind": "event",
+      "value": "fs changed: C:/Users/mikeh/dev/ALIVE/alive-repos/alive-runtime/src/main.ts",
+      "priority": 0.45,
+      "expiresAt": 1774930852760
+    },
+    {
+      "id": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "kind": "event",
+      "value": "battery 100%",
+      "priority": 0.45,
+      "expiresAt": 1774930852760
+    }
+  ],
+  "episodes": [
+    {
+      "id": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "entities": [
+        "filesystem",
+        "file_change_event"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774930552760,
+      "salience": 0.45,
+      "confidence": 0.82,
+      "uncertainty": 0.18000000000000005
+    },
+    {
+      "id": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "entities": [
+        "telemetry",
+        "process_health"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774930552760,
+      "salience": 0.45,
+      "confidence": 0.9,
+      "uncertainty": 0.09999999999999998
+    },
+    {
+      "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "entities": [
+        "system_api",
+        "user_input"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774930552760,
+      "salience": 0.8,
+      "confidence": 0.95,
+      "uncertainty": 0.050000000000000044
+    }
+  ],
+  "structuralNodes": [
+    {
+      "id": "signal:file_change_event",
+      "type": "signal_kind",
+      "traits": {
+        "kind": "file_change_event",
+        "source": "filesystem"
+      }
+    },
+    {
+      "id": "signal:process_health",
+      "type": "signal_kind",
+      "traits": {
+        "kind": "process_health",
+        "source": "telemetry"
+      }
+    },
+    {
+      "id": "signal:user_input",
+      "type": "signal_kind",
+      "traits": {
+        "kind": "user_input",
+        "source": "system_api"
+      }
+    }
+  ],
+  "referenceHot": [
+    {
+      "key": "signal.kind.bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "value": "user_input",
+      "confidence": 0.95
+    },
+    {
+      "key": "signal.kind.520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "value": "process_health",
+      "confidence": 0.9
+    },
+    {
+      "key": "signal.kind.c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "value": "file_change_event",
+      "confidence": 0.82
+    }
+  ],
+  "associations": [
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "filesystem",
+      "type": "co_observed",
+      "weight": 0.9
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "telemetry",
+      "type": "co_observed",
+      "weight": 0.9
+    },
+    {
+      "from": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "to": "system_api",
+      "type": "co_observed",
+      "weight": 0.9
+    },
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "file_change_event",
+      "type": "co_observed",
+      "weight": 0.8
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "process_health",
+      "type": "co_observed",
+      "weight": 0.8
+    },
+    {
+      "from": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "to": "user_input",
+      "type": "co_observed",
+      "weight": 0.8
+    },
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "ctx:workstation",
+      "type": "co_observed",
+      "weight": 0.7
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "ctx:workstation",
+      "type": "co_observed",
+      "weight": 0.7
+    },
+    {
+      "from": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "to": "ctx:workstation",
+      "type": "co_observed",
+      "weight": 0.7
+    },
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "ctx:phase1-demo",
+      "type": "co_observed",
+      "weight": 0.6
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "ctx:phase1-demo",
+      "type": "co_observed",
+      "weight": 0.6
+    },
+    {
+      "from": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "to": "ctx:phase1-demo",
+      "type": "co_observed",
+      "weight": 0.6
+    },
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "signal:file_change_event",
+      "type": "co_observed",
+      "weight": 0.5
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "signal:process_health",
+      "type": "co_observed",
+      "weight": 0.5
+    },
+    {
+      "from": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "to": "signal:user_input",
+      "type": "co_observed",
+      "weight": 0.5
+    }
+  ],
+  "workingMemorySample": [
+    {
+      "id": "outcome:c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "kind": "outcome",
+      "value": "success: Signal from filesystem/file_change_event: fs changed: C:/Users/mikeh/dev/ALIVE/alive-repos/alive-runtime/src/main.ts | candidate=display_text | deep=false",
+      "priority": 0.85,
+      "expiresAt": 1774931152763
+    },
+    {
+      "id": "outcome:520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "kind": "outcome",
+      "value": "success: Signal from telemetry/process_health: battery 100% | candidate=display_text | deep=false",
+      "priority": 0.85,
+      "expiresAt": 1774931152766
+    },
+    {
+      "id": "outcome:bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "kind": "outcome",
+      "value": "success: Signal from system_api/user_input: Please summarize what changed and suggest next safe action | candidate=display_text | deep=true",
+      "priority": 0.85,
+      "expiresAt": 1774931152768
+    },
+    {
+      "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "kind": "event",
+      "value": "Please summarize what changed and suggest next safe action",
+      "priority": 0.8,
+      "expiresAt": 1774930852760
+    },
+    {
+      "id": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "kind": "event",
+      "value": "fs changed: C:/Users/mikeh/dev/ALIVE/alive-repos/alive-runtime/src/main.ts",
+      "priority": 0.45,
+      "expiresAt": 1774930852760
+    }
+  ],
+  "recentEpisodesSample": [
+    {
+      "id": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "entities": [
+        "filesystem",
+        "file_change_event"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774930552760,
+      "salience": 0.45,
+      "confidence": 0.82,
+      "uncertainty": 0.18000000000000005
+    },
+    {
+      "id": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "entities": [
+        "telemetry",
+        "process_health"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774930552760,
+      "salience": 0.45,
+      "confidence": 0.9,
+      "uncertainty": 0.09999999999999998
+    },
+    {
+      "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "entities": [
+        "system_api",
+        "user_input"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774930552760,
+      "salience": 0.8,
+      "confidence": 0.95,
+      "uncertainty": 0.050000000000000044
+    }
+  ],
+  "referenceItemSample": [
+    {
+      "id": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "key": "signal.kind.c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "value": "file_change_event",
+      "confidence": 0.82,
+      "updatedAt": 1774930552761
+    },
+    {
+      "id": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "key": "signal.kind.520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "value": "process_health",
+      "confidence": 0.9,
+      "updatedAt": 1774930552765
+    },
+    {
+      "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "key": "signal.kind.bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "value": "user_input",
+      "confidence": 0.95,
+      "updatedAt": 1774930552767
+    }
+  ],
+  "threadSummarySample": [],
+  "outcomeBufferSample": [
+    {
+      "id": "outcome:bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "actionId": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "observedResult": "success",
+      "discrepancyScore": 0,
+      "stateDelta": {
+        "note": "Signal from system_api/user_input: Please summarize what changed and suggest next safe action | candidate=display_text | deep=true"
+      },
+      "updatedAt": 1774930552768
+    },
+    {
+      "id": "outcome:520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "actionId": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "observedResult": "success",
+      "discrepancyScore": 0,
+      "stateDelta": {
+        "note": "Signal from telemetry/process_health: battery 100% | candidate=display_text | deep=false"
+      },
+      "updatedAt": 1774930552766
+    },
+    {
+      "id": "outcome:c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "actionId": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "observedResult": "success",
+      "discrepancyScore": 0,
+      "stateDelta": {
+        "note": "Signal from filesystem/file_change_event: fs changed: C:/Users/mikeh/dev/ALIVE/alive-repos/alive-runtime/src/main.ts | candidate=display_text | deep=false"
+      },
+      "updatedAt": 1774930552763
+    }
+  ],
+  "structuralNodeSample": [
+    {
+      "id": "signal:file_change_event",
+      "type": "signal_kind",
+      "traits": {
+        "kind": "file_change_event",
+        "source": "filesystem"
+      }
+    },
+    {
+      "id": "signal:process_health",
+      "type": "signal_kind",
+      "traits": {
+        "kind": "process_health",
+        "source": "telemetry"
+      }
+    },
+    {
+      "id": "signal:user_input",
+      "type": "signal_kind",
+      "traits": {
+        "kind": "user_input",
+        "source": "system_api"
+      }
+    }
+  ],
+  "associationSample": [
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "filesystem",
+      "type": "co_observed",
+      "weight": 0.9
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "telemetry",
+      "type": "co_observed",
+      "weight": 0.9
+    },
+    {
+      "from": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+      "to": "system_api",
+      "type": "co_observed",
+      "weight": 0.9
+    },
+    {
+      "from": "c3b68bd8-f148-4598-87d1-f3d0a217c1f7",
+      "to": "file_change_event",
+      "type": "co_observed",
+      "weight": 0.8
+    },
+    {
+      "from": "520c0a1a-29d7-41dd-af46-be4cd4e86bea",
+      "to": "process_health",
+      "type": "co_observed",
+      "weight": 0.8
+    }
+  ],
+  "readOnly": true,
+  "generatedAt": 1774930552769
+}

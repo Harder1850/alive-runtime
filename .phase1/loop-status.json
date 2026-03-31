@@ -1,0 +1,32 @@
+{
+  "mode": "deep",
+  "deepCognitionOpened": true,
+  "lastSignal": {
+    "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
+    "kind": "user_input",
+    "source": "system_api",
+    "raw": "Please summarize what changed and suggest next safe action",
+    "ts": 1774930552760
+  },
+  "triageDecision": {
+    "novelty": 0.7,
+    "relevance": 0.8,
+    "contradictionCandidate": false,
+    "openedDeep": true
+  },
+  "lastCandidateAction": "display_text",
+  "lastCandidateSummary": "Signal user_input: Please summarize what changed and suggest next safe action",
+  "lastSummary": "Signal from system_api/user_input: Please summarize what changed and suggest next safe action",
+  "lastReasoningSummary": "Deep cognition opened. Recalled 13 items before generating candidate action.",
+  "stageTimestamps": {
+    "signalReceivedAt": 1774930552760,
+    "loopProcessedAt": 1774930552768,
+    "outcomeRecordedAt": 1774930552768
+  },
+  "updatedAt": 1774930552768,
+  "lastOutcome": {
+    "success": true,
+    "note": "Signal from system_api/user_input: Please summarize what changed and suggest next safe action | candidate=display_text | deep=true",
+    "timestamp": 1774930552768
+  }
+}

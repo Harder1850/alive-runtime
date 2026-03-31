@@ -1,5 +1,13 @@
 export { routeSignal } from './router/signal-router';
 export { evaluateSTG, shouldThink } from './stg/stop-thinking-gate';
+export {
+  processPhase1Signal,
+  pushPhase1RuntimeOutcome,
+  getPhase1LoopStatus,
+  getPhase1MemoryStatus,
+  shouldOpenDeepCognition,
+  getPhase1ArtifactPaths,
+} from './phase1/phase1-runtime';
 
 declare global {
   // eslint-disable-next-line no-var
