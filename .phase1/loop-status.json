@@ -2,31 +2,80 @@
   "mode": "deep",
   "deepCognitionOpened": true,
   "lastSignal": {
-    "id": "bd9c4041-ab69-40cf-bd56-5252d8c4541e",
-    "kind": "user_input",
-    "source": "system_api",
-    "raw": "Please summarize what changed and suggest next safe action",
-    "ts": 1774930552760
+    "id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+    "kind": "process_error",
+    "source": "process",
+    "raw": "process error: npm build failed: TypeScript error in alive-mind",
+    "ts": 1774936006313
+  },
+  "providedSignal": {
+    "signal_id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+    "source_type": "process",
+    "event_type": "process_error",
+    "observed_at": 1774936006313,
+    "quality_score": 0.88,
+    "payload_ref": "{\"error\":\"npm build failed: TypeScript error in alive-mind\"}",
+    "summary": "process/process_error: process error: npm build failed: TypeScript error in alive-mind",
+    "thread_hint": null
   },
   "triageDecision": {
-    "novelty": 0.7,
-    "relevance": 0.8,
-    "contradictionCandidate": false,
+    "novelty": 0.68,
+    "relevance": 0.742,
+    "contradictionCandidate": true,
     "openedDeep": true
   },
   "lastCandidateAction": "display_text",
-  "lastCandidateSummary": "Signal user_input: Please summarize what changed and suggest next safe action",
-  "lastSummary": "Signal from system_api/user_input: Please summarize what changed and suggest next safe action",
-  "lastReasoningSummary": "Deep cognition opened. Recalled 13 items before generating candidate action.",
-  "stageTimestamps": {
-    "signalReceivedAt": 1774930552760,
-    "loopProcessedAt": 1774930552768,
-    "outcomeRecordedAt": 1774930552768
+  "lastCandidateSummary": "[NOTIFY] Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness",
+  "lastSummary": "Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind",
+  "lastReasoningSummary": "Deep cognition opened. Recalled 20 items. Selected action: notify.",
+  "actionCandidate": {
+    "candidate_id": "cand-306f327d-62f2-4261-a766-931d3e2fbb29",
+    "action_type": "notify",
+    "rationale": "Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness",
+    "confidence_score": 0.95,
+    "risk_score": 0.05,
+    "reversibility_score": 1,
+    "requires_human_approval": false,
+    "support_refs": [
+      "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "ref:signal.kind.ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "working:outcome:feb8511b-c0ea-4094-8b59-6fa060486704",
+      "working:outcome:661eb6de-55f9-4811-a83b-d8e06bafc337"
+    ]
   },
-  "updatedAt": 1774930552768,
+  "whitelistVerdict": {
+    "allowed": true,
+    "auto_execute": true,
+    "reason": "action_type 'notify' cleared for auto-execution (risk=0.05, confidence=0.95)"
+  },
+  "demoExplanation": {
+    "notice": "notify executed automatically.",
+    "reason": "Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness (20 memory items informed this decision.)",
+    "confidence_tone": "high",
+    "next_step": "[ALIVE notify 2026-03-31T05:46:46.538Z] Signal from process/process_error indicates degraded state or error condition (20 memory items recal"
+  },
+  "lastOutcomeRecord": {
+    "outcome_id": "outcome-306f327d-62f2-4261-a766-931d3e2fbb29-1774936006538",
+    "candidate_id": "cand-306f327d-62f2-4261-a766-931d3e2fbb29",
+    "observed_result": "success",
+    "state_delta": {
+      "action_type": "notify",
+      "executed": true,
+      "output": "[ALIVE notify 2026-03-31T05:46:46.538Z] Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness",
+      "signal_id": "306f327d-62f2-4261-a766-931d3e2fbb29"
+    },
+    "discrepancy_score": 0,
+    "received_at": 1774936006538
+  },
+  "stageTimestamps": {
+    "signalReceivedAt": 1774936006313,
+    "loopProcessedAt": 1774936006538,
+    "outcomeRecordedAt": 1774936006541
+  },
+  "updatedAt": 1774936006541,
   "lastOutcome": {
     "success": true,
-    "note": "Signal from system_api/user_input: Please summarize what changed and suggest next safe action | candidate=display_text | deep=true",
-    "timestamp": 1774930552768
+    "note": "Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind | action=notify | auto_execute=true | deep=true",
+    "timestamp": 1774936006541
   }
 }
