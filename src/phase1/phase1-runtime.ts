@@ -19,6 +19,7 @@ import {
   type ActionCandidate as RuntimeActionCandidate,
   type OutcomeRecord,
   type DemoExplanation,
+  type StoryModeSummary,
 } from "./proving-types";
 import {
   executeProvingAction,
@@ -42,6 +43,7 @@ export interface Phase1LoopStatus {
   demoExplanation?: DemoExplanation;
   lastOutcome?: { success: boolean; note: string; timestamp: number };
   lastOutcomeRecord?: OutcomeRecord;
+  storyMode?: StoryModeSummary;
   stageTimestamps?: Record<string, number>;
   updatedAt?: number;
   warnings?: string[];
@@ -168,6 +170,69 @@ function buildOutcomeRecord(
   };
 }
 
+// ── StoryMode builder ─────────────────────────────────────────────────────────
+// Translates technical state into plain language a non-technical user understands.
+// Uses only real data — the five sentences map directly to real fields.
+
+function buildStoryMode(
+  signal: Signal,
+  output: Phase1CognitionOutput,
+  verdict: WhitelistVerdict,
+  outcomeRecord: OutcomeRecord,
+): StoryModeSummary {
+  const { actionCandidate, recalledItems, deepCognitionOpened } = output;
+  const raw = String(signal.raw_content ?? "").slice(0, 100);
+
+  // "I noticed..."
+  // Grounded in: signal.source, signal.kind, signal.raw_content
+  const signalLabel = signal.kind.replace(/_/g, " ");
+  const noticed = `I noticed a ${signalLabel} from ${signal.source}: "${raw}".`;
+
+  // "It looked like..."
+  // Grounded in: deepCognitionOpened, recalledItems.length, actionCandidate.rationale
+  const depthNote = deepCognitionOpened
+    ? `I looked deeper and found ${recalledItems.length} related memories.`
+    : `I made a quick check — no prior memories were closely related.`;
+  // Take the descriptive clause before "—", strip metadata markers like "(N memory items recalled)" and "[deep cognition]"
+  const rationaleCore = actionCandidate.rationale.split("—")[0]
+    .replace(/\s*\(\d+ memory items? recalled\)/g, "")
+    .replace(/\s*\[.*?\]/g, "")
+    .trim();
+  const lookedLike = `${depthNote} ${rationaleCore || actionCandidate.rationale.slice(0, 100)}.`.replace(/\.\.$/, ".");
+
+  // "I decided to..."
+  // Grounded in: actionCandidate.action_type, verdict.auto_execute, verdict.reason
+  const actionLabel = actionCandidate.action_type.replace(/_/g, " ");
+  const executionNote = verdict.auto_execute
+    ? `I ran it automatically because it was low-risk (risk score: ${actionCandidate.risk_score.toFixed(2)}).`
+    : `I did not run it automatically — I recorded it as a recommendation for you to review.`;
+  const decided = `I decided to ${actionLabel}. ${executionNote}`;
+
+  // "The result was..."
+  // Grounded in: outcomeRecord.observed_result, outcomeRecord.state_delta.output
+  const execOutput = typeof outcomeRecord.state_delta.output === "string"
+    ? outcomeRecord.state_delta.output.slice(0, 120)
+    : null;
+  const resultLabel = outcomeRecord.observed_result === "success"
+    ? "successful"
+    : outcomeRecord.observed_result === "partial"
+      ? "recorded as a recommendation (not executed)"
+      : outcomeRecord.observed_result;
+  const result = execOutput
+    ? `The result was ${resultLabel}: ${execOutput}.`
+    : `The result was ${resultLabel}.`;
+
+  // "I only took safe actions..."
+  // Grounded in: verdict.reason, actionCandidate.risk_score, actionCandidate.reversibility_score
+  const safetyNote =
+    `I only took safe actions. ` +
+    `${verdict.reason}. ` +
+    `Reversibility: ${(actionCandidate.reversibility_score * 100).toFixed(0)}% ` +
+    `(${actionCandidate.reversibility_score >= 0.9 ? "fully reversible" : actionCandidate.reversibility_score >= 0.5 ? "mostly reversible" : "limited reversibility"}).`;
+
+  return { noticed, lookedLike, decided, result, safetyNote, generatedAt: Date.now() };
+}
+
 // ── Main processing function ──────────────────────────────────────────────────
 
 export async function processPhase1Signal(input: {
@@ -256,6 +321,7 @@ export async function processPhase1Signal(input: {
   status.whitelistVerdict      = { allowed: verdict.allowed, auto_execute: verdict.auto_execute, reason: verdict.reason };
   status.demoExplanation       = demoExplanation;
   status.lastOutcomeRecord     = outcomeRecord;
+  status.storyMode             = buildStoryMode(signal, output, verdict, outcomeRecord);
   status.stageTimestamps       = {
     signalReceivedAt:  signal.timestamp,
     loopProcessedAt:   Date.now(),

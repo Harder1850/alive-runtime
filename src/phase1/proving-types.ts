@@ -90,6 +90,20 @@ export interface DemoExplanation {
   next_step?: string;         // what a human should consider doing next
 }
 
+// ── StoryModeSummary ───────────────────────────────────────────────────────────
+// Human-readable narrative for non-technical observers.
+// Every sentence is grounded in a real data field — nothing is invented.
+// Used by Studio's StoryModePanel.
+
+export interface StoryModeSummary {
+  noticed: string;      // "I noticed..." — what signal arrived
+  lookedLike: string;   // "It looked like..." — what cognition concluded
+  decided: string;      // "I decided to..." — action chosen + whitelist outcome
+  result: string;       // "The result was..." — execution outcome
+  safetyNote: string;   // "I only took safe actions..." — whitelist confirmation
+  generatedAt: number;  // epoch ms when this summary was built
+}
+
 // ── Helpers ────────────────────────────────────────────────────────────────────
 
 /** Map constitution SignalSource to ProvidedSignalSourceType. */

@@ -1,79 +1,94 @@
 {
   "working": [
     {
-      "id": "outcome:feb8511b-c0ea-4094-8b59-6fa060486704",
+      "id": "outcome:54f6cbb1-1947-4394-a871-2887e641c353",
       "kind": "outcome",
       "value": "success: Signal from filesystem/file_change_event: fs changed: alive-repos/alive-runtime/src/phase1/proving-s | action=git_status_check | auto_execute=true | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606466
+      "expiresAt": 1774973106742
     },
     {
-      "id": "outcome:661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "outcome:f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "kind": "outcome",
-      "value": "success: Signal from telemetry/process_health: system health: battery 68% | action=monitor | auto_execute=true | deep=false",
+      "value": "success: Signal from telemetry/process_health: system health: battery 94% | action=monitor | auto_execute=true | deep=false",
       "priority": 0.85,
-      "expiresAt": 1774936606471
+      "expiresAt": 1774973106748
     },
     {
-      "id": "outcome:b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "outcome:b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "kind": "outcome",
       "value": "success: Signal from github/repo_commit: new commit on main: feat: add phase1 proving scenario | action=git_status_check | auto_execute=true | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606530
+      "expiresAt": 1774973106792
     },
     {
-      "id": "outcome:ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "outcome:8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "kind": "outcome",
       "value": "success: Signal from system_api/user_input: Summarize what changed and recommend next safe action | action=recommend | auto_execute=false | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606535
+      "expiresAt": 1774973106796
     },
     {
-      "id": "outcome:306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "outcome:65192cb0-5294-4a19-9489-476ea033d04e",
       "kind": "outcome",
       "value": "success: Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind | action=notify | auto_execute=true | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606541
+      "expiresAt": 1774973106801
     },
     {
-      "id": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "id": "54f6cbb1-1947-4394-a871-2887e641c353",
       "kind": "event",
       "value": "fs changed: alive-repos/alive-runtime/src/phase1/proving-scenario.ts",
       "priority": 0.8,
-      "expiresAt": 1774936306312
+      "expiresAt": 1774972806692
     },
     {
-      "id": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "kind": "event",
       "value": "new commit on main: feat: add phase1 proving scenario",
       "priority": 0.8,
-      "expiresAt": 1774936306313
+      "expiresAt": 1774972806692
     },
     {
-      "id": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "kind": "event",
       "value": "Summarize what changed and recommend next safe action",
       "priority": 0.8,
-      "expiresAt": 1774936306313
+      "expiresAt": 1774972806692
     },
     {
-      "id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "65192cb0-5294-4a19-9489-476ea033d04e",
       "kind": "event",
       "value": "process error: npm build failed: TypeScript error in alive-mind",
       "priority": 0.8,
-      "expiresAt": 1774936306313
+      "expiresAt": 1774972806692
     },
     {
-      "id": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "kind": "event",
-      "value": "system health: battery 68%",
+      "value": "system health: battery 94%",
       "priority": 0.45,
-      "expiresAt": 1774936306313
+      "expiresAt": 1774972806692
     }
   ],
   "episodes": [
     {
-      "id": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "54f6cbb1-1947-4394-a871-2887e641c353",
+      "entities": [
+        "filesystem",
+        "file_change_event"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774972506692,
+      "salience": 0.8,
+      "confidence": 0.9,
+      "uncertainty": 0.09999999999999998
+    },
+    {
+      "id": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "entities": [
         "telemetry",
         "process_health"
@@ -82,13 +97,13 @@
         "workstation",
         "phase1-demo"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.45,
       "confidence": 0.92,
       "uncertainty": 0.07999999999999996
     },
     {
-      "id": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "entities": [
         "github",
         "repo_commit"
@@ -98,13 +113,13 @@
         "phase1-demo",
         "git"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.8,
       "confidence": 0.95,
       "uncertainty": 0.050000000000000044
     },
     {
-      "id": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "entities": [
         "system_api",
         "user_input"
@@ -113,13 +128,13 @@
         "workstation",
         "phase1-demo"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.8,
       "confidence": 0.98,
       "uncertainty": 0.020000000000000018
     },
     {
-      "id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "65192cb0-5294-4a19-9489-476ea033d04e",
       "entities": [
         "process",
         "process_error"
@@ -128,25 +143,10 @@
         "workstation",
         "phase1-demo"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.8,
       "confidence": 0.88,
       "uncertainty": 0.12
-    },
-    {
-      "id": "feb8511b-c0ea-4094-8b59-6fa060486704",
-      "entities": [
-        "filesystem",
-        "file_change_event"
-      ],
-      "context": [
-        "workstation",
-        "phase1-demo"
-      ],
-      "time": 1774936006312,
-      "salience": 0.8,
-      "confidence": 0.9,
-      "uncertainty": 0.09999999999999998
     }
   ],
   "structuralNodes": [
@@ -193,148 +193,148 @@
   ],
   "referenceHot": [
     {
-      "key": "signal.kind.ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "key": "signal.kind.8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "value": "user_input",
       "confidence": 0.98
     },
     {
-      "key": "signal.kind.b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "key": "signal.kind.b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "value": "repo_commit",
       "confidence": 0.95
     },
     {
-      "key": "signal.kind.661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "key": "signal.kind.f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "value": "process_health",
       "confidence": 0.92
     },
     {
-      "key": "signal.kind.feb8511b-c0ea-4094-8b59-6fa060486704",
+      "key": "signal.kind.54f6cbb1-1947-4394-a871-2887e641c353",
       "value": "file_change_event",
       "confidence": 0.9
     },
     {
-      "key": "signal.kind.306f327d-62f2-4261-a766-931d3e2fbb29",
+      "key": "signal.kind.65192cb0-5294-4a19-9489-476ea033d04e",
       "value": "process_error",
       "confidence": 0.88
     }
   ],
   "associations": [
     {
-      "from": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "from": "54f6cbb1-1947-4394-a871-2887e641c353",
       "to": "filesystem",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "from": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "to": "telemetry",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "from": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "to": "github",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "from": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "to": "system_api",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "from": "65192cb0-5294-4a19-9489-476ea033d04e",
       "to": "process",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "from": "54f6cbb1-1947-4394-a871-2887e641c353",
       "to": "file_change_event",
       "type": "co_observed",
       "weight": 0.8
     },
     {
-      "from": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "from": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "to": "process_health",
       "type": "co_observed",
       "weight": 0.8
     },
     {
-      "from": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "from": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "to": "repo_commit",
       "type": "co_observed",
       "weight": 0.8
     },
     {
-      "from": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "from": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "to": "user_input",
       "type": "co_observed",
       "weight": 0.8
     },
     {
-      "from": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "from": "65192cb0-5294-4a19-9489-476ea033d04e",
       "to": "process_error",
       "type": "co_observed",
       "weight": 0.8
     },
     {
-      "from": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "from": "54f6cbb1-1947-4394-a871-2887e641c353",
       "to": "ctx:workstation",
       "type": "co_observed",
       "weight": 0.7
     },
     {
-      "from": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "from": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "to": "ctx:workstation",
       "type": "co_observed",
       "weight": 0.7
     },
     {
-      "from": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "from": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "to": "ctx:workstation",
       "type": "co_observed",
       "weight": 0.7
     },
     {
-      "from": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "from": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "to": "ctx:workstation",
       "type": "co_observed",
       "weight": 0.7
     },
     {
-      "from": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "from": "65192cb0-5294-4a19-9489-476ea033d04e",
       "to": "ctx:workstation",
       "type": "co_observed",
       "weight": 0.7
     },
     {
-      "from": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "from": "54f6cbb1-1947-4394-a871-2887e641c353",
       "to": "ctx:phase1-demo",
       "type": "co_observed",
       "weight": 0.6
     },
     {
-      "from": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "from": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "to": "ctx:phase1-demo",
       "type": "co_observed",
       "weight": 0.6
     },
     {
-      "from": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "from": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "to": "ctx:phase1-demo",
       "type": "co_observed",
       "weight": 0.6
     },
     {
-      "from": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "from": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "to": "ctx:phase1-demo",
       "type": "co_observed",
       "weight": 0.6
     },
     {
-      "from": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "from": "65192cb0-5294-4a19-9489-476ea033d04e",
       "to": "ctx:phase1-demo",
       "type": "co_observed",
       "weight": 0.6
@@ -342,44 +342,59 @@
   ],
   "workingMemorySample": [
     {
-      "id": "outcome:feb8511b-c0ea-4094-8b59-6fa060486704",
+      "id": "outcome:54f6cbb1-1947-4394-a871-2887e641c353",
       "kind": "outcome",
       "value": "success: Signal from filesystem/file_change_event: fs changed: alive-repos/alive-runtime/src/phase1/proving-s | action=git_status_check | auto_execute=true | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606466
+      "expiresAt": 1774973106742
     },
     {
-      "id": "outcome:661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "outcome:f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "kind": "outcome",
-      "value": "success: Signal from telemetry/process_health: system health: battery 68% | action=monitor | auto_execute=true | deep=false",
+      "value": "success: Signal from telemetry/process_health: system health: battery 94% | action=monitor | auto_execute=true | deep=false",
       "priority": 0.85,
-      "expiresAt": 1774936606471
+      "expiresAt": 1774973106748
     },
     {
-      "id": "outcome:b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "outcome:b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "kind": "outcome",
       "value": "success: Signal from github/repo_commit: new commit on main: feat: add phase1 proving scenario | action=git_status_check | auto_execute=true | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606530
+      "expiresAt": 1774973106792
     },
     {
-      "id": "outcome:ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "outcome:8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "kind": "outcome",
       "value": "success: Signal from system_api/user_input: Summarize what changed and recommend next safe action | action=recommend | auto_execute=false | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606535
+      "expiresAt": 1774973106796
     },
     {
-      "id": "outcome:306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "outcome:65192cb0-5294-4a19-9489-476ea033d04e",
       "kind": "outcome",
       "value": "success: Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind | action=notify | auto_execute=true | deep=true",
       "priority": 0.85,
-      "expiresAt": 1774936606541
+      "expiresAt": 1774973106801
     }
   ],
   "recentEpisodesSample": [
     {
-      "id": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "54f6cbb1-1947-4394-a871-2887e641c353",
+      "entities": [
+        "filesystem",
+        "file_change_event"
+      ],
+      "context": [
+        "workstation",
+        "phase1-demo"
+      ],
+      "time": 1774972506692,
+      "salience": 0.8,
+      "confidence": 0.9,
+      "uncertainty": 0.09999999999999998
+    },
+    {
+      "id": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "entities": [
         "telemetry",
         "process_health"
@@ -388,13 +403,13 @@
         "workstation",
         "phase1-demo"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.45,
       "confidence": 0.92,
       "uncertainty": 0.07999999999999996
     },
     {
-      "id": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "entities": [
         "github",
         "repo_commit"
@@ -404,13 +419,13 @@
         "phase1-demo",
         "git"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.8,
       "confidence": 0.95,
       "uncertainty": 0.050000000000000044
     },
     {
-      "id": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "entities": [
         "system_api",
         "user_input"
@@ -419,13 +434,13 @@
         "workstation",
         "phase1-demo"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.8,
       "confidence": 0.98,
       "uncertainty": 0.020000000000000018
     },
     {
-      "id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "65192cb0-5294-4a19-9489-476ea033d04e",
       "entities": [
         "process",
         "process_error"
@@ -434,115 +449,100 @@
         "workstation",
         "phase1-demo"
       ],
-      "time": 1774936006313,
+      "time": 1774972506692,
       "salience": 0.8,
       "confidence": 0.88,
       "uncertainty": 0.12
-    },
-    {
-      "id": "feb8511b-c0ea-4094-8b59-6fa060486704",
-      "entities": [
-        "filesystem",
-        "file_change_event"
-      ],
-      "context": [
-        "workstation",
-        "phase1-demo"
-      ],
-      "time": 1774936006312,
-      "salience": 0.8,
-      "confidence": 0.9,
-      "uncertainty": 0.09999999999999998
     }
   ],
   "referenceItemSample": [
     {
-      "id": "feb8511b-c0ea-4094-8b59-6fa060486704",
-      "key": "signal.kind.feb8511b-c0ea-4094-8b59-6fa060486704",
+      "id": "54f6cbb1-1947-4394-a871-2887e641c353",
+      "key": "signal.kind.54f6cbb1-1947-4394-a871-2887e641c353",
       "value": "file_change_event",
       "confidence": 0.9,
-      "updatedAt": 1774936006314
+      "updatedAt": 1774972506693
     },
     {
-      "id": "661eb6de-55f9-4811-a83b-d8e06bafc337",
-      "key": "signal.kind.661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
+      "key": "signal.kind.f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "value": "process_health",
       "confidence": 0.92,
-      "updatedAt": 1774936006468
+      "updatedAt": 1774972506745
     },
     {
-      "id": "b458168b-95b0-427b-bd55-6543cf5dc39c",
-      "key": "signal.kind.b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
+      "key": "signal.kind.b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "value": "repo_commit",
       "confidence": 0.95,
-      "updatedAt": 1774936006473
+      "updatedAt": 1774972506750
     },
     {
-      "id": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
-      "key": "signal.kind.ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
+      "key": "signal.kind.8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "value": "user_input",
       "confidence": 0.98,
-      "updatedAt": 1774936006532
+      "updatedAt": 1774972506795
     },
     {
-      "id": "306f327d-62f2-4261-a766-931d3e2fbb29",
-      "key": "signal.kind.306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "65192cb0-5294-4a19-9489-476ea033d04e",
+      "key": "signal.kind.65192cb0-5294-4a19-9489-476ea033d04e",
       "value": "process_error",
       "confidence": 0.88,
-      "updatedAt": 1774936006538
+      "updatedAt": 1774972506798
     }
   ],
   "threadSummarySample": [],
   "outcomeBufferSample": [
     {
-      "id": "outcome:306f327d-62f2-4261-a766-931d3e2fbb29",
-      "actionId": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "id": "outcome:65192cb0-5294-4a19-9489-476ea033d04e",
+      "actionId": "65192cb0-5294-4a19-9489-476ea033d04e",
       "observedResult": "success",
       "discrepancyScore": 0,
       "stateDelta": {
         "note": "Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind | action=notify | auto_execute=true | deep=true"
       },
-      "updatedAt": 1774936006541
+      "updatedAt": 1774972506801
     },
     {
-      "id": "outcome:ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
-      "actionId": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "id": "outcome:8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
+      "actionId": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "observedResult": "success",
       "discrepancyScore": 0,
       "stateDelta": {
         "note": "Signal from system_api/user_input: Summarize what changed and recommend next safe action | action=recommend | auto_execute=false | deep=true"
       },
-      "updatedAt": 1774936006535
+      "updatedAt": 1774972506796
     },
     {
-      "id": "outcome:b458168b-95b0-427b-bd55-6543cf5dc39c",
-      "actionId": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "id": "outcome:b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
+      "actionId": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "observedResult": "success",
       "discrepancyScore": 0,
       "stateDelta": {
         "note": "Signal from github/repo_commit: new commit on main: feat: add phase1 proving scenario | action=git_status_check | auto_execute=true | deep=true"
       },
-      "updatedAt": 1774936006530
+      "updatedAt": 1774972506792
     },
     {
-      "id": "outcome:661eb6de-55f9-4811-a83b-d8e06bafc337",
-      "actionId": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "id": "outcome:f30825f6-ef39-47a1-9acb-7158a8e8e38c",
+      "actionId": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "observedResult": "success",
       "discrepancyScore": 0,
       "stateDelta": {
-        "note": "Signal from telemetry/process_health: system health: battery 68% | action=monitor | auto_execute=true | deep=false"
+        "note": "Signal from telemetry/process_health: system health: battery 94% | action=monitor | auto_execute=true | deep=false"
       },
-      "updatedAt": 1774936006471
+      "updatedAt": 1774972506748
     },
     {
-      "id": "outcome:feb8511b-c0ea-4094-8b59-6fa060486704",
-      "actionId": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "id": "outcome:54f6cbb1-1947-4394-a871-2887e641c353",
+      "actionId": "54f6cbb1-1947-4394-a871-2887e641c353",
       "observedResult": "success",
       "discrepancyScore": 0,
       "stateDelta": {
         "note": "Signal from filesystem/file_change_event: fs changed: alive-repos/alive-runtime/src/phase1/proving-s | action=git_status_check | auto_execute=true | deep=true"
       },
-      "updatedAt": 1774936006466
+      "updatedAt": 1774972506742
     }
   ],
   "structuralNodeSample": [
@@ -573,36 +573,36 @@
   ],
   "associationSample": [
     {
-      "from": "feb8511b-c0ea-4094-8b59-6fa060486704",
+      "from": "54f6cbb1-1947-4394-a871-2887e641c353",
       "to": "filesystem",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "661eb6de-55f9-4811-a83b-d8e06bafc337",
+      "from": "f30825f6-ef39-47a1-9acb-7158a8e8e38c",
       "to": "telemetry",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "b458168b-95b0-427b-bd55-6543cf5dc39c",
+      "from": "b58567d0-6f6b-415e-8910-7f2d01c0b2b1",
       "to": "github",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
+      "from": "8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
       "to": "system_api",
       "type": "co_observed",
       "weight": 0.9
     },
     {
-      "from": "306f327d-62f2-4261-a766-931d3e2fbb29",
+      "from": "65192cb0-5294-4a19-9489-476ea033d04e",
       "to": "process",
       "type": "co_observed",
       "weight": 0.9
     }
   ],
   "readOnly": true,
-  "generatedAt": 1774936006542
+  "generatedAt": 1774972506802
 }

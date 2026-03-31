@@ -2,17 +2,17 @@
   "mode": "deep",
   "deepCognitionOpened": true,
   "lastSignal": {
-    "id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+    "id": "65192cb0-5294-4a19-9489-476ea033d04e",
     "kind": "process_error",
     "source": "process",
     "raw": "process error: npm build failed: TypeScript error in alive-mind",
-    "ts": 1774936006313
+    "ts": 1774972506692
   },
   "providedSignal": {
-    "signal_id": "306f327d-62f2-4261-a766-931d3e2fbb29",
+    "signal_id": "65192cb0-5294-4a19-9489-476ea033d04e",
     "source_type": "process",
     "event_type": "process_error",
-    "observed_at": 1774936006313,
+    "observed_at": 1774972506692,
     "quality_score": 0.88,
     "payload_ref": "{\"error\":\"npm build failed: TypeScript error in alive-mind\"}",
     "summary": "process/process_error: process error: npm build failed: TypeScript error in alive-mind",
@@ -29,7 +29,7 @@
   "lastSummary": "Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind",
   "lastReasoningSummary": "Deep cognition opened. Recalled 20 items. Selected action: notify.",
   "actionCandidate": {
-    "candidate_id": "cand-306f327d-62f2-4261-a766-931d3e2fbb29",
+    "candidate_id": "cand-65192cb0-5294-4a19-9489-476ea033d04e",
     "action_type": "notify",
     "rationale": "Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness",
     "confidence_score": 0.95,
@@ -37,10 +37,10 @@
     "reversibility_score": 1,
     "requires_human_approval": false,
     "support_refs": [
-      "306f327d-62f2-4261-a766-931d3e2fbb29",
-      "ref:signal.kind.ce70a0a8-0cd4-4b25-b5ab-dc48fbb44d78",
-      "working:outcome:feb8511b-c0ea-4094-8b59-6fa060486704",
-      "working:outcome:661eb6de-55f9-4811-a83b-d8e06bafc337"
+      "65192cb0-5294-4a19-9489-476ea033d04e",
+      "ref:signal.kind.8d2214b8-78c9-44e7-b2e7-55c6a90b6491",
+      "working:outcome:54f6cbb1-1947-4394-a871-2887e641c353",
+      "working:outcome:f30825f6-ef39-47a1-9acb-7158a8e8e38c"
     ]
   },
   "whitelistVerdict": {
@@ -52,30 +52,38 @@
     "notice": "notify executed automatically.",
     "reason": "Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness (20 memory items informed this decision.)",
     "confidence_tone": "high",
-    "next_step": "[ALIVE notify 2026-03-31T05:46:46.538Z] Signal from process/process_error indicates degraded state or error condition (20 memory items recal"
+    "next_step": "[ALIVE notify 2026-03-31T15:55:06.798Z] Signal from process/process_error indicates degraded state or error condition (20 memory items recal"
   },
   "lastOutcomeRecord": {
-    "outcome_id": "outcome-306f327d-62f2-4261-a766-931d3e2fbb29-1774936006538",
-    "candidate_id": "cand-306f327d-62f2-4261-a766-931d3e2fbb29",
+    "outcome_id": "outcome-65192cb0-5294-4a19-9489-476ea033d04e-1774972506799",
+    "candidate_id": "cand-65192cb0-5294-4a19-9489-476ea033d04e",
     "observed_result": "success",
     "state_delta": {
       "action_type": "notify",
       "executed": true,
-      "output": "[ALIVE notify 2026-03-31T05:46:46.538Z] Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness",
-      "signal_id": "306f327d-62f2-4261-a766-931d3e2fbb29"
+      "output": "[ALIVE notify 2026-03-31T15:55:06.798Z] Signal from process/process_error indicates degraded state or error condition (20 memory items recalled) [deep cognition] — surfacing for human awareness",
+      "signal_id": "65192cb0-5294-4a19-9489-476ea033d04e"
     },
     "discrepancy_score": 0,
-    "received_at": 1774936006538
+    "received_at": 1774972506799
+  },
+  "storyMode": {
+    "noticed": "I noticed a process error from process: \"process error: npm build failed: TypeScript error in alive-mind\".",
+    "lookedLike": "I looked deeper and found 20 related memories. surfacing for human awareness.",
+    "decided": "I decided to notify. I ran it automatically because it was low-risk (risk score: 0.05).",
+    "result": "The result was successful: [ALIVE notify 2026-03-31T15:55:06.798Z] Signal from process/process_error indicates degraded state or error condition (2.",
+    "safetyNote": "I only took safe actions. action_type 'notify' cleared for auto-execution (risk=0.05, confidence=0.95). Reversibility: 100% (fully reversible).",
+    "generatedAt": 1774972506799
   },
   "stageTimestamps": {
-    "signalReceivedAt": 1774936006313,
-    "loopProcessedAt": 1774936006538,
-    "outcomeRecordedAt": 1774936006541
+    "signalReceivedAt": 1774972506692,
+    "loopProcessedAt": 1774972506799,
+    "outcomeRecordedAt": 1774972506801
   },
-  "updatedAt": 1774936006541,
+  "updatedAt": 1774972506801,
   "lastOutcome": {
     "success": true,
     "note": "Signal from process/process_error: process error: npm build failed: TypeScript error in alive-mind | action=notify | auto_execute=true | deep=true",
-    "timestamp": 1774936006541
+    "timestamp": 1774972506801
   }
 }
