@@ -10,6 +10,9 @@
  *   threat signal → reflex-router → immediate Action (skips STG + mind)
  *   normal signal → reflex-router → queued for STG evaluation
  *
+ * IMPORTANT: In LOCKDOWN mode, the reflex path is completely disabled.
+ * All actions must go through the lockdown gate for authorization.
+ *
  * Invariant: Emergency override never suppresses the reflex path.
  * (alive-constitution/invariants/emergency-bounds.ts — EMERGENCY_ALLOWS_CONSTITUTION_OVERRIDE = false)
  */
@@ -19,6 +22,7 @@ import { join } from 'path';
 
 import type { Signal } from '../../alive-constitution/contracts/signal';
 import type { Action } from '../../alive-constitution/contracts/action';
+import { isReflexPathPermitted } from '../enforcement/lockdown-gate';
 
 export interface RoutingResult {
   /** Present when a threat was detected and the reflex fires immediately. */
@@ -74,6 +78,16 @@ function matchesThreatDictionary(signal: Signal): boolean {
  * STG → mind → enforcement → body processing.
  */
 export function routeWithPriority(signals: readonly Signal[]): RoutingResult {
+  // In LOCKDOWN mode, disable the reflex path entirely
+  // All actions must go through the lockdown gate for authorization
+  if (!isReflexPathPermitted()) {
+    return {
+      reflexAction: undefined,
+      queued: signals,
+      bypassed: false,
+    };
+  }
+
   const threatSignal = signals.find(
     (s) => s.threat_flag === true || matchesThreatDictionary(s),
   );

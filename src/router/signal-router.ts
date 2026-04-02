@@ -4,7 +4,7 @@ import { logActionDispatched, logActionOutcome } from '../../../alive-body/src/l
 import { evaluateSTG, shouldThink, markSignalVerified } from '../stg/stop-thinking-gate';
 import { checkAdmissibility } from '../enforcement/admissibility-check';
 import { callMind } from '../wiring/mind-bridge';
-import { callBody } from '../wiring/body-bridge';
+import { callBodyGated } from '../wiring/body-bridge';
 import { assertEnforcementVerified } from '../index';
 
 export function routeSignal(signal: Signal): string {
@@ -35,9 +35,9 @@ export function routeSignal(signal: Signal): string {
     return 'Blocked by admissibility check';
   }
 
-  const result = callBody(decision.selected_action);
+  const execResult = callBodyGated(decision.selected_action, verified.id);
   logActionDispatched(verified.id, decision.id, decision.selected_action.type);
-  logActionOutcome(verified.id, decision.id, true, result);
+  logActionOutcome(verified.id, decision.id, execResult.executed, execResult.result);
 
-  return result;
+  return execResult.result;
 }

@@ -7,10 +7,16 @@
  *
  * Invariant: Reflex actions MUST be reversible or status-only.
  * The brain can always override a reflex on the next cycle.
+ *
+ * LOCKDOWN: The reflex bypass path is completely disabled.
+ * routeWithPriority() returns { reflexAction: null, bypassed: false } when
+ * isReflexPathPermitted() is false, so no signal can bypass the brain via
+ * the reflex path during LOCKDOWN.
  */
 
 import type { Signal } from '../../../alive-constitution/contracts/signal';
-import type { Action } from '../../../alive-constitution/contracts/action';
+import type { Action }  from '../../../alive-constitution/contracts/action';
+import { isReflexPathPermitted } from './lockdown-gate';
 
 // Keywords that mandate an immediate reflex response
 const CRITICAL_PATTERNS: readonly RegExp[] = [
@@ -32,8 +38,17 @@ export interface ReflexResult {
 /**
  * Route a batch of signals by priority.
  * Returns the highest-priority reflex action found, or null if none triggered.
+ *
+ * Returns { reflexAction: null, bypassed: false } immediately if the reflex
+ * path is disabled (e.g. during LOCKDOWN).
  */
 export function routeWithPriority(signals: Signal[]): ReflexResult {
+  // LOCKDOWN guard — reflex bypass is disabled when the system is locked down.
+  if (!isReflexPathPermitted()) {
+    console.warn('[REFLEX-ROUTER] Reflex path disabled — system not in NORMAL mode');
+    return { reflexAction: null, bypassed: false };
+  }
+
   for (const signal of signals) {
     const reflex = evaluateReflex(signal);
     if (reflex.bypassed) return reflex;

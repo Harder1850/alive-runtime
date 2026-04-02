@@ -5,24 +5,32 @@
  * Calls each stage in order and halts on any stop condition.
  *
  * Chain:
- *   Ingest → Filter → Firewall → STG → Mind → Executive → Execute → Log
+ *   Ingest → Filter → Firewall → STG → Mind → Executive → [Gate + Token] → Execute → Log
+ *
+ * Lockdown integration (stage 6.5):
+ *   After the executive authorizes, the global gate is called with a freshly
+ *   issued ActionAuthorization. The gate checks lockdown mode, token expiry,
+ *   action-hash binding, and single-use consumption before execution proceeds.
+ *   Any gate failure halts the pipeline and is recorded as a blocked action.
  *
  * The optional `onEvent` callback receives a RuntimeEvent at each stage so that
  * the interface-bridge (and any other observer) can relay live progress to the
  * Studio UI without any logic changes to the pipeline itself.
  */
 
-import { ingestInput } from '../../../alive-body/src/sensors/ingestion';
-import { Filtering } from '../../../alive-body/src/sensors/filtering';
-import { firewallCheck } from '../../../alive-body/src/nervous-system/firewall';
+import { ingestInput }           from '../../../alive-body/src/sensors/ingestion';
+import { Filtering }             from '../../../alive-body/src/sensors/filtering';
+import { firewallCheck }         from '../../../alive-body/src/nervous-system/firewall';
 import { evaluateSTG, markSignalVerified } from '../stg/stop-thinking-gate';
-import { think } from '../../../alive-mind/src/spine/mind-loop';
-import { authorize } from '../enforcement/executive';
-import { executeAction } from '../../../alive-body/src/actuators/executor';
+import { think }                 from '../../../alive-mind/src/spine/mind-loop';
+import { authorize }             from '../enforcement/executive';
+import { executeAction }         from '../../../alive-body/src/actuators/executor';
 import { logActionDispatched, logActionOutcome, logCycleComplete } from '../../../alive-body/src/logging/execution-log';
-import { recordAndEvaluate } from '../comparison-baseline/cb-service';
-import { triageSignal } from '../triage/triage-service';
-import type { RuntimeEvent } from '../../../alive-interface/studio/packages/shared-types/src/index';
+import { recordAndEvaluate }     from '../comparison-baseline/cb-service';
+import { triageSignal }          from '../triage/triage-service';
+import { issueActionAuthorization, checkAndConsumeGate } from '../enforcement/global-gate';
+import { onAuthorizationFailure } from '../enforcement/lockdown-triggers';
+import type { RuntimeEvent }     from '../../../alive-interface/studio/packages/shared-types/src/index';
 
 const filtering = new Filtering();
 
@@ -82,30 +90,29 @@ export async function runPipeline(raw: string, onEvent?: (event: RuntimeEvent) =
   console.log(`[PIPELINE] 5. MIND      decision=${decision.id} action=${decision.selected_action.type} confidence=${decision.confidence}`);
   onEvent?.({
     type: 'mind.completed',
-    signal_id: verifiedSignal.id,
+    signal_id:   verifiedSignal.id,
     decision_id: decision.id,
     action_type: decision.selected_action.type,
-    confidence: decision.confidence,
+    confidence:  decision.confidence,
   });
 
   // ── Stage 6: CB + Triage + Executive ──────────────────────────────────────
-  // authorize() requires a TriageResult — run the existing CB and triage services
   const cbResult = recordAndEvaluate(verifiedSignal);
   onEvent?.({
-    type: 'cb.evaluated',
-    signal_id: verifiedSignal.id,
+    type:       'cb.evaluated',
+    signal_id:  verifiedSignal.id,
     novelty:    cbResult.isAnomaly ? cbResult.zScore : 0,
     recurrence: cbResult.currentVelocity,
   });
 
   const triage = triageSignal(verifiedSignal, cbResult);
-  const exec = authorize(verifiedSignal, triage);
+  const exec   = authorize(verifiedSignal, triage);
   console.log(`[PIPELINE] 6. EXECUTIVE verdict=${exec.verdict} ref=${exec.constitution_ref}`);
   onEvent?.({
-    type: 'executive.evaluated',
+    type:      'executive.evaluated',
     signal_id: verifiedSignal.id,
-    verdict: exec.verdict === 'VETOED' ? 'VETOED' : 'AUTHORIZED',
-    reason: exec.reason,
+    verdict:   exec.verdict === 'VETOED' ? 'VETOED' : 'AUTHORIZED',
+    reason:    exec.reason,
   });
   if (exec.verdict === 'VETOED') {
     console.log(`[PIPELINE] HALT — executive VETOED: ${exec.reason}`);
@@ -113,23 +120,51 @@ export async function runPipeline(raw: string, onEvent?: (event: RuntimeEvent) =
     return;
   }
 
+  // ── Stage 6.5: Issue token + Global Gate ──────────────────────────────────
+  // Runtime mints a single-use authorization tied to this exact action.
+  // The gate validates it (lockdown mode, hash, expiry, single-use) before
+  // handing off to the body executor.
+  const authorization = issueActionAuthorization(
+    decision.selected_action,
+    verifiedSignal.id,
+    exec.constitution_ref,
+  );
+
+  const gateResult = checkAndConsumeGate(decision.selected_action, authorization);
+  console.log(`[PIPELINE] 6.5 GATE     permitted=${gateResult.permitted} reason="${gateResult.reason}"`);
+
+  if (!gateResult.permitted) {
+    // Record the failure to the trigger system — repeated failures → auto-lockdown
+    onAuthorizationFailure(
+      `pipeline stage 6.5: ${gateResult.blocked_reason ?? 'unknown'} — ${gateResult.reason}`,
+    );
+    console.log(`[PIPELINE] HALT — global gate blocked: ${gateResult.reason}`);
+    onEvent?.({
+      type:      'pipeline.terminated',
+      signal_id: verifiedSignal.id,
+      reason:    gateResult.reason,
+      stage:     'global_gate',
+    });
+    return;
+  }
+
   // ── Stage 7: Execute ──────────────────────────────────────────────────────
-  const result = executeAction(decision.selected_action);
-  console.log(`[PIPELINE] 7. EXECUTE   result="${result}"`);
+  const execResult = executeAction(decision.selected_action, gateResult.authorization);
+  console.log(`[PIPELINE] 7. EXECUTE   executed=${execResult.executed} result="${execResult.result}"`);
   onEvent?.({
-    type: 'execution.completed',
-    signal_id: verifiedSignal.id,
+    type:        'execution.completed',
+    signal_id:   verifiedSignal.id,
     action_type: decision.selected_action.type,
-    result,
+    result:      execResult.result,
   });
 
   // ── Stage 8: Log ──────────────────────────────────────────────────────────
   logActionDispatched(verifiedSignal.id, decision.id, decision.selected_action.type);
-  logActionOutcome(verifiedSignal.id, decision.id, true, result);
+  logActionOutcome(verifiedSignal.id, decision.id, execResult.executed, execResult.result);
   logCycleComplete(verifiedSignal.id, {
-    stage: 'pipeline',
-    action_type: decision.selected_action.type,
-    result,
+    stage:             'pipeline',
+    action_type:       decision.selected_action.type,
+    result:            execResult.result,
     executive_verdict: exec.verdict,
   });
   console.log(`[PIPELINE] 8. LOGGED    signalId=${verifiedSignal.id} decisionId=${decision.id}`);

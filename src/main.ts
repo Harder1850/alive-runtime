@@ -17,7 +17,7 @@ import { makeSignal, type Signal } from '../../alive-constitution/contracts/sign
 import type { Action } from '../../alive-constitution/contracts/action';
 import { routeWithPriority } from '../enforcement/reflex-router';
 import { callMind } from './wiring/mind-bridge';
-import { callBody } from './wiring/body-bridge';
+import { callBodyGated } from './wiring/body-bridge';
 import { evaluateNovelSignal } from '../../alive-mind/src/decisions/reasoning-engine';
 import { StateModel } from '../../alive-mind/src/spine/state-model';
 import { readEnvironment } from '../../alive-body/src/sensors/environment';
@@ -165,8 +165,8 @@ async function invokeTeacherAutonomously(raw_content: string, label: string): Pr
   try {
     const action = await evaluateNovelSignal(signal, stateModel.get());
     if (checkAdmissibility(action)) {
-      const result = callBody(action);
-      console.log(`[ALIVE] ✅ Teacher acted (${action.type}): ${result.slice(0, 100)}`);
+      const execResult = callBodyGated(action, signal.id);
+      console.log(`[ALIVE] ✅ Teacher acted (${action.type}): ${execResult.result.slice(0, 100)}`);
       appendExperience(signal, action, { stg_result: 'OPEN', was_reflex: false, flags_raised: 1 });
       return action;
     }
@@ -278,8 +278,8 @@ async function tick(): Promise<void> {
   // Step 3: Reflex — bypass brain for critical patterns (before executive overhead)
   const { reflexAction, bypassed } = routeWithPriority([signal]);
   if (bypassed && reflexAction) {
-    const output = callBody(reflexAction);
-    console.log(`${prefix} | ⚡ REFLEX | "${String(signal.raw_content).slice(0, 50)}" → "${output.slice(0, 60)}"`);
+    const reflexExec = callBodyGated(reflexAction, signal.id);
+    console.log(`${prefix} | ⚡ REFLEX | "${String(signal.raw_content).slice(0, 50)}" → "${reflexExec.result.slice(0, 60)}"`);
     appendExperience(signal, reflexAction, { stg_result: 'REFLEX', was_reflex: true, flags_raised: triage.flags.length });
     return;
   }
@@ -328,9 +328,9 @@ async function tick(): Promise<void> {
     return;
   }
 
-  // Step 7: Body — execute
-  const output = callBody(action);
-  console.log(`${prefix} | ✅ ACT → "${output.slice(0, 80)}"`);
+  // Step 7: Body — execute through the global gate
+  const execResult = callBodyGated(action, signal.id);
+  console.log(`${prefix} | ✅ ACT → "${execResult.result.slice(0, 80)}"`);
 
   // Step 8: Experience Stream — record what happened
   appendExperience(signal, action, {
@@ -371,7 +371,7 @@ async function handleObservation(wss: WebSocketServer, raw: string): Promise<voi
   // Reflex check
   const { reflexAction, bypassed } = routeWithPriority([signal]);
   if (bypassed && reflexAction) {
-    callBody(reflexAction);
+    callBodyGated(reflexAction, signal.id);
     const text = reflexAction.type === 'display_text' ? reflexAction.payload : '[reflex]';
     broadcast(wss, { type: 'render', canvas: 'text', content: { text } });
     appendExperience(signal, reflexAction, { stg_result: 'REFLEX', was_reflex: true, flags_raised: triage.flags.length });
@@ -388,8 +388,8 @@ async function handleObservation(wss: WebSocketServer, raw: string): Promise<voi
   try {
     const action = await evaluateNovelSignal(signal, stateModel.get());
     if (checkAdmissibility(action)) {
-      const result = callBody(action);
-      const text = action.type === 'display_text' ? action.payload : result;
+      const wsExec = callBodyGated(action, signal.id);
+      const text = action.type === 'display_text' ? action.payload : wsExec.result;
       broadcast(wss, { type: 'render', canvas: 'text', content: { text } });
       appendExperience(signal, action, { stg_result: 'OPEN', was_reflex: false, flags_raised: triage.flags.length });
     }
