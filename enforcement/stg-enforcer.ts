@@ -9,7 +9,7 @@
  * (alive-constitution/invariants/system-invariants.ts)
  */
 
-import type { Signal } from '../../alive-constitution/contracts/signal';
+import type { Signal } from '../../alive-constitution/contracts';
 
 export interface STGToken {
   readonly id: string;

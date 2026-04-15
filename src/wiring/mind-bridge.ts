@@ -1,4 +1,4 @@
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 import type { Decision } from '../../../alive-constitution/contracts/decision';
 import { think } from '../../../alive-mind/src/spine/mind-loop';
 

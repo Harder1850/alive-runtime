@@ -14,8 +14,7 @@
 import { describe, test } from 'node:test';
 import assert from 'node:assert/strict';
 
-import type { Signal } from '../../alive-constitution/contracts/signal';
-import type { SignalSource, FirewallStatus } from '../../alive-constitution/contracts/signal';
+import type { Signal, SignalSource, FirewallStatus } from '../../alive-constitution/contracts';
 import type { Action } from '../../alive-constitution/contracts/action';
 
 import {

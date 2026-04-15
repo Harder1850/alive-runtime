@@ -25,9 +25,8 @@
 import * as fs   from 'fs';
 import * as path from 'path';
 
-import type { Signal }       from '../../alive-constitution/contracts/signal';
+import type { Signal, RuntimeState } from '../../alive-constitution/contracts';
 import type { Action }       from '../../alive-constitution/contracts/action';
-import type { RuntimeState } from '../../alive-constitution/contracts/state';
 
 import { compareBaseline }      from './comparison-baseline/cb';
 import { evaluateSTG }          from './stg/stop-thinking-gate';

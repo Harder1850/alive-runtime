@@ -1,6 +1,6 @@
 import { assertEnforcementVerified } from '../index';
 import { routeSignal } from './signal-router';
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 
 /**
  * Factory function for creating a signal router instance.

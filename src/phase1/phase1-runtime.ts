@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-import type { Signal } from "../../../alive-constitution/contracts/signal";
+import type { Signal } from "../../../alive-constitution/contracts";
 import {
   getPhase1MemorySnapshot,
   getPhase1StudioMemoryBridgeSnapshot,

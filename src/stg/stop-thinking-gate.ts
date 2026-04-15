@@ -32,7 +32,7 @@
  *   • Queue bounded at MAX_QUEUE_SIZE — lowest-priority item evicted on overflow
  */
 
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 
 export type StgResult = 'OPEN' | 'DEFER' | 'DENY';
 

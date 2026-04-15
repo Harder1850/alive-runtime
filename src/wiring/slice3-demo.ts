@@ -23,7 +23,7 @@ import { semanticGraph }   from '../../../alive-mind/src/memory/semantic-graph';
 import { procedureLibrary} from '../../../alive-mind/src/memory/procedure-library';
 import { ltg }             from '../../../alive-mind/src/learning/ltg/learning-transfer-gate';
 import { consolidator }    from '../../../alive-mind/src/memory/consolidator';
-import type { Episode, MemoryKey } from '../../../alive-constitution/contracts/memory';
+import type { Episode, MemoryKey } from '../../../alive-constitution/contracts';
 import type { Action }     from '../../../alive-constitution/contracts/action';
 
 // ─── Demo scenario spec ───────────────────────────────────────────────────────

@@ -13,7 +13,7 @@
 import { WebSocketServer, WebSocket } from 'ws';
 import { writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
-import { makeSignal, type Signal } from '../../alive-constitution/contracts/signal';
+import { makeSignal, type Signal } from '../../alive-constitution/contracts';
 import type { Action } from '../../alive-constitution/contracts/action';
 import { routeWithPriority } from '../enforcement/reflex-router';
 import { callMind } from './wiring/mind-bridge';

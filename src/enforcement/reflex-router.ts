@@ -14,7 +14,7 @@
  * the reflex path during LOCKDOWN.
  */
 
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 import type { Action }  from '../../../alive-constitution/contracts/action';
 import { isReflexPathPermitted } from './lockdown-gate';
 

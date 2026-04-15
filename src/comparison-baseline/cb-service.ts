@@ -17,7 +17,7 @@
  * calculations without re-deriving it from the two raw velocities.
  */
 
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 
 export interface CBResult {
   /** True when this signal's source is firing at anomalous velocity */

@@ -1,4 +1,4 @@
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 
 /** Stub: Priority queue for runtime jobs. */
 export class PriorityQueue<T> {

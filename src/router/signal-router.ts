@@ -1,4 +1,4 @@
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 import { firewallCheck } from '../../../alive-body/src/nervous-system/firewall';
 import { logActionDispatched, logActionOutcome } from '../../../alive-body/src/logging/execution-log';
 import { evaluateSTG, shouldThink, markSignalVerified } from '../stg/stop-thinking-gate';

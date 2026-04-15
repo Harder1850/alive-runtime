@@ -17,7 +17,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 
-import { makeSignal }                from '../../alive-constitution/contracts/signal';
+import { makeSignal }                from '../../alive-constitution/contracts';
 import { runPhase1CognitionLoop }    from '../../alive-mind/src/spine/phase1-cognition-loop';
 import { enforceWhitelist }          from '../src/phase1/action-whitelist';
 import type { ActionCandidate }      from '../src/phase1/proving-types';

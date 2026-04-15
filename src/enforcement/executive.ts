@@ -21,7 +21,7 @@
 
 import { readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import type { Signal } from '../../../alive-constitution/contracts/signal';
+import type { Signal } from '../../../alive-constitution/contracts';
 import type { TriageResult } from '../triage/triage-service';
 
 // ---------------------------------------------------------------------------

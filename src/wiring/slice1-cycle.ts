@@ -51,10 +51,9 @@ import { ltg }                  from '../../../alive-mind/src/learning/ltg/learn
 import { episodeStore }         from '../../../alive-mind/src/memory/episode-store';
 import { semanticGraph }        from '../../../alive-mind/src/memory/semantic-graph';
 import { consolidator }         from '../../../alive-mind/src/memory/consolidator';
-import type { Episode, MemoryKey } from '../../../alive-constitution/contracts/memory';
+import type { Episode, MemoryKey, Signal } from '../../../alive-constitution/contracts';
 
 // ── Alive-constitution ────────────────────────────────────────────────────────
-import type { Signal }          from '../../../alive-constitution/contracts/signal';
 import type { Action, WriteFileAction } from '../../../alive-constitution/contracts/action';
 import type { Decision }        from '../../../alive-constitution/contracts/decision';
 import { computeDecisionIntegrityHash } from '../../../alive-constitution/contracts/decision';

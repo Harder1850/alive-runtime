@@ -15,7 +15,7 @@
  * Run with:  npm run phase1:prove
  */
 
-import { makeSignal, type Signal } from "../../../alive-constitution/contracts/signal";
+import { makeSignal, type Signal } from "../../../alive-constitution/contracts";
 import { readBattery }             from "../../../alive-body/src/sensors/system-info";
 import { firewallCheck }           from "../../../alive-body/src/nervous-system/firewall";
 
