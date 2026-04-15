@@ -55,3 +55,9 @@ Runtime decides: when thinking occurs, when actions are allowed, how signals mov
 
 ## Drift Warning
 ⚠️ If runtime begins thinking or storing memory, boundaries are broken.
+
+## Documentation Standard
+
+This repository follows the ALIVE documentation templates defined in:
+
+alive-constitution/docs/standards/TEMPLATES.md
